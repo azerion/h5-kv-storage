@@ -1,6 +1,6 @@
-import { IStorageAdapter } from './';
+import { StorageAdapter } from './';
 
-export class Cookie implements  IStorageAdapter {
+export class CookieStorage implements  StorageAdapter {
     clear(): Promise<void> {
         return Promise.resolve(undefined);
     }

@@ -21,7 +21,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts {src,test}/* --fix && prettier --write \"{src,test}/**/*.{js,ts}\"",
     "prebuild": "rimraf dist",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs ./src/mylib.ts",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs ./src/h5-kv-storage.ts",
     "start": "rollup -c rollup.config.ts -w",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",

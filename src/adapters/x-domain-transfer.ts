@@ -1,6 +1,6 @@
-import { IStorageAdapter } from './';
+import { StorageAdapter } from './';
 
-export class XDomainTransfer implements  IStorageAdapter {
+export class XDomainTransfer implements  StorageAdapter {
     constructor(targetDomain: string) {
 
     }

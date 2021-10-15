@@ -1,6 +1,6 @@
-import { IStorageAdapter } from './';
+import { StorageAdapter } from './';
 
-export class LocalStorage implements IStorageAdapter {
+export class LocalStorage implements StorageAdapter {
     public storageEnabled: boolean = false;
 
     constructor() {

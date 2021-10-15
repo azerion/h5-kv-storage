@@ -1,4 +1,4 @@
-export interface IStorageAdapter {
+export interface StorageAdapter {
     length(): Promise<number>;
     getItem(key: string): Promise<string | null>;
     setItem(key: string, value: string): Promise<void>;

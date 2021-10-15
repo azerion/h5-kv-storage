@@ -1,6 +1,6 @@
-import { IStorageAdapter, LocalStorage } from './adapters'
+import { StorageAdapter, LocalStorage } from './adapters'
 export class KvStorage {
-    private storageAdapter: IStorageAdapter;
+    private storageAdapter: StorageAdapter;
 
     private namespace: string;
 
@@ -11,10 +11,10 @@ export class KvStorage {
     }
 
     public setNamespace(namedSpace: string): void | Promise<void> {
-        this.storageAdapter.namespace = this.namespace = namedSpace;
+        this.namespace = namedSpace;
     }
 
-    public setAdapter(storageAdapter: IStorageAdapter): void {
+    public setAdapter(storageAdapter: StorageAdapter): void {
         this.storageAdapter = storageAdapter;
     }
 

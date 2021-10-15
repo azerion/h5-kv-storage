@@ -6,7 +6,7 @@ import json from '@rollup/plugin-json'
 
 const pkg = require('./package.json')
 
-const libraryName = 'mylib'
+const libraryName = 'h5-kv-storage'
 
 export default {
   input: `src/${libraryName}.ts`,
