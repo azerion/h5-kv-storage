@@ -1,6 +1,6 @@
-import { StorageAdapter } from './';
+import { IStorageAdapter } from './';
 
-export class XDomainTransfer implements  StorageAdapter {
+export class XDomainTransfer implements  IStorageAdapter {
     constructor(targetDomain: string) {
 
     }
@@ -26,6 +26,15 @@ export class XDomainTransfer implements  StorageAdapter {
 
     setItem(key: string, value: string): Promise<void> {
         return Promise.resolve(undefined);
+    }
+
+    public storageAvailable: boolean = false;
+
+    initialize(): Promise<string> {
+        return Promise.resolve('');
+    }
+
+    setNamespace(namespace: string): void {
     }
 
 }

@@ -1,8 +1,8 @@
-import {StorageAdapter} from './';
+import {IStorageAdapter} from './';
 import {IStorageMessage, StorageCommand} from '../utils';
 
-export class XDomain implements StorageAdapter {
-    public storageEnabled: boolean = false;
+export class XDomain implements IStorageAdapter {
+    public storageAvailable: boolean = false;
 
     private xDomainName: string = '';
 
@@ -23,7 +23,7 @@ export class XDomain implements StorageAdapter {
     }
 
     public initialize(): Promise<string> {
-        if (this.storageEnabled === true) {
+        if (this.storageAvailable === true) {
             console.log('Adapter already initilized');
         }
 
@@ -39,14 +39,18 @@ export class XDomain implements StorageAdapter {
         }).then(() => this.sendMessageToIframe({
             command: StorageCommand.init
         })).then((message) => {
-            this.storageEnabled = true;
+            this.storageAvailable = true;
 
             return message;
         }) as Promise<string>;
     }
 
+    public setNamespace(namespace: string): void {
+
+    }
+
     public clear(): Promise<void> {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
 
@@ -56,7 +60,7 @@ export class XDomain implements StorageAdapter {
     }
 
     public getItem(key: string): Promise<string | null> {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
 
@@ -67,7 +71,7 @@ export class XDomain implements StorageAdapter {
     }
 
     public key(index: number): Promise<string | null> {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
 
@@ -78,7 +82,7 @@ export class XDomain implements StorageAdapter {
     }
 
     public length(): Promise<number> {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
 
@@ -88,7 +92,7 @@ export class XDomain implements StorageAdapter {
     }
 
     public removeItem(key: string): Promise<void> {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
 
@@ -99,7 +103,7 @@ export class XDomain implements StorageAdapter {
     }
 
     public setItem(key: string, value: string): Promise<void> {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
 
@@ -119,7 +123,7 @@ export class XDomain implements StorageAdapter {
         let messageChannel: MessageChannel = new MessageChannel();
 
         return new Promise((resolve: (value?: any ) => void, reject: (error?: any) => void) => {
-            if (!this.storageEnabled && message.command !== StorageCommand.init) {
+            if (!this.storageAvailable && message.command !== StorageCommand.init) {
                 reject('Messaging not enabled!');
             }
 
@@ -163,7 +167,7 @@ export class XDomain implements StorageAdapter {
                 }
             };
 
-            if (this.storageEnabled || message.command === StorageCommand.init) {
+            if (this.storageAvailable || message.command === StorageCommand.init) {
                 console.log('Sending message to parent: ', message);
                this.target.postMessage(message, this.xDomainName, [messageChannel.port2]);
             }

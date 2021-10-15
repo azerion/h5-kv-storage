@@ -3,18 +3,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocalStorage = void 0;
 var LocalStorage = /** @class */ (function () {
     function LocalStorage() {
-        this.storageEnabled = false;
+        this.storageAvailable = false;
+        this.namespace = 'kvs';
+    }
+    LocalStorage.prototype.initialize = function () {
         try {
             if (typeof localStorage === 'object') {
                 localStorage.setItem('kv-storage-test', 'true');
                 localStorage.removeItem('kv-storage-test');
-                this.storageEnabled = true;
+                this.storageAvailable = true;
+                return Promise.resolve('ok');
             }
         }
         catch (e) { }
-    }
+        return Promise.reject('Unable to local your storage');
+    };
+    LocalStorage.prototype.setNamespace = function (namespace) {
+    };
     LocalStorage.prototype.clear = function () {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.clear());
         }
         else {
@@ -22,7 +29,7 @@ var LocalStorage = /** @class */ (function () {
         }
     };
     LocalStorage.prototype.getItem = function (key) {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.getItem(key));
         }
         else {
@@ -30,7 +37,7 @@ var LocalStorage = /** @class */ (function () {
         }
     };
     LocalStorage.prototype.key = function (index) {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.key(index));
         }
         else {
@@ -38,7 +45,7 @@ var LocalStorage = /** @class */ (function () {
         }
     };
     LocalStorage.prototype.length = function () {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.length);
         }
         else {
@@ -46,7 +53,7 @@ var LocalStorage = /** @class */ (function () {
         }
     };
     LocalStorage.prototype.removeItem = function (key) {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.removeItem(key));
         }
         else {
@@ -54,7 +61,7 @@ var LocalStorage = /** @class */ (function () {
         }
     };
     LocalStorage.prototype.setItem = function (key, value) {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.setItem(key, value));
         }
         else {

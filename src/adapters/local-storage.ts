@@ -1,21 +1,32 @@
-import { StorageAdapter } from './';
+import { IStorageAdapter } from './';
 
-export class LocalStorage implements StorageAdapter {
-    public storageEnabled: boolean = false;
+export class LocalStorage implements IStorageAdapter {
+    public storageAvailable: boolean = false;
 
-    constructor() {
+    public namespace: string = 'kvs';
+
+    constructor() {}
+
+    public initialize(): Promise<string> {
         try {
             if (typeof localStorage === 'object') {
                 localStorage.setItem('kv-storage-test', 'true');
                 localStorage.removeItem('kv-storage-test');
 
-                this.storageEnabled = true;
+                this.storageAvailable = true;
+                return Promise.resolve('ok')
             }
         } catch (e) {}
+
+        return Promise.reject('Unable to local your storage');
+    }
+
+    public setNamespace(namespace: string): void {
+
     }
 
     public clear(): Promise<void> {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.clear());
         } else {
             return Promise.reject("LocalStorage not available");
@@ -23,7 +34,7 @@ export class LocalStorage implements StorageAdapter {
     }
 
     public getItem(key: string): Promise<string | null> {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.getItem(key));
         } else {
             return Promise.reject("LocalStorage not available");
@@ -31,7 +42,7 @@ export class LocalStorage implements StorageAdapter {
     }
 
     public key(index: number): Promise<string | null> {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.key(index));
         } else {
             return Promise.reject("LocalStorage not available");
@@ -39,7 +50,7 @@ export class LocalStorage implements StorageAdapter {
     }
 
     public length(): Promise<number> {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.length);
         } else {
             return Promise.reject("LocalStorage not available");
@@ -47,7 +58,7 @@ export class LocalStorage implements StorageAdapter {
     }
 
     public removeItem(key: string): Promise<void> {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.removeItem(key));
         } else {
             return Promise.reject("LocalStorage not available");
@@ -55,7 +66,7 @@ export class LocalStorage implements StorageAdapter {
     }
 
     public setItem(key: string, value: string): Promise<void> {
-        if (this.storageEnabled) {
+        if (this.storageAvailable) {
             return Promise.resolve(localStorage.setItem(key, value));
         } else {
             return Promise.reject("LocalStorage not available");

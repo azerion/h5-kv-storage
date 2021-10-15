@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CookieStorage = void 0;
 var CookieStorage = /** @class */ (function () {
     function CookieStorage() {
+        this.storageAvailable = false;
     }
     CookieStorage.prototype.clear = function () {
         return Promise.resolve(undefined);
@@ -21,6 +22,11 @@ var CookieStorage = /** @class */ (function () {
     };
     CookieStorage.prototype.setItem = function (key, value) {
         return Promise.resolve(undefined);
+    };
+    CookieStorage.prototype.initialize = function () {
+        return Promise.resolve('');
+    };
+    CookieStorage.prototype.setNamespace = function (namespace) {
     };
     return CookieStorage;
 }());

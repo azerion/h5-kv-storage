@@ -1,6 +1,6 @@
-import { StorageAdapter } from './';
+import { IStorageAdapter } from './';
 
-export class CookieStorage implements  StorageAdapter {
+export class CookieStorage implements  IStorageAdapter {
     clear(): Promise<void> {
         return Promise.resolve(undefined);
     }
@@ -23,6 +23,15 @@ export class CookieStorage implements  StorageAdapter {
 
     setItem(key: string, value: string): Promise<void> {
         return Promise.resolve(undefined);
+    }
+
+    public storageAvailable: boolean = false;
+
+    initialize(): Promise<string> {
+        return Promise.resolve('');
+    }
+
+    setNamespace(namespace: string): void {
     }
 
 }

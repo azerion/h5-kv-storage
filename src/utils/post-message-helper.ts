@@ -1,10 +1,10 @@
 import { StorageCommand, IStorageMessage } from './'
-import { StorageAdapter, LocalStorage } from '../adapters'
+import { IStorageAdapter, LocalStorage } from '../adapters'
 
 export class PostMessageHelper {
     // private namespace: string;
 
-    private adapter: StorageAdapter;
+    private adapter: IStorageAdapter;
 
     private sourceDomain: string;
 
@@ -13,11 +13,12 @@ export class PostMessageHelper {
 
         // We'll just ass-u-me local storage for now
         this.adapter = new LocalStorage();
-
-        window.addEventListener('message', this.messageHandler.bind(this));
+        this.adapter.initialize().then(() => {
+            window.addEventListener('message', this.messageHandler.bind(this));
+        });
     }
 
-    public setAdapter(adapter: StorageAdapter): void {
+    public setAdapter(adapter: IStorageAdapter): void {
         this.adapter = adapter;
     }
 

@@ -6,18 +6,25 @@
 
     var LocalStorage = /** @class */ (function () {
         function LocalStorage() {
-            this.storageEnabled = false;
+            this.storageAvailable = false;
+            this.namespace = 'kvs';
+        }
+        LocalStorage.prototype.initialize = function () {
             try {
                 if (typeof localStorage === 'object') {
                     localStorage.setItem('kv-storage-test', 'true');
                     localStorage.removeItem('kv-storage-test');
-                    this.storageEnabled = true;
+                    this.storageAvailable = true;
+                    return Promise.resolve('ok');
                 }
             }
             catch (e) { }
-        }
+            return Promise.reject('Unable to local your storage');
+        };
+        LocalStorage.prototype.setNamespace = function (namespace) {
+        };
         LocalStorage.prototype.clear = function () {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.clear());
             }
             else {
@@ -25,7 +32,7 @@
             }
         };
         LocalStorage.prototype.getItem = function (key) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.getItem(key));
             }
             else {
@@ -33,7 +40,7 @@
             }
         };
         LocalStorage.prototype.key = function (index) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.key(index));
             }
             else {
@@ -41,7 +48,7 @@
             }
         };
         LocalStorage.prototype.length = function () {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.length);
             }
             else {
@@ -49,7 +56,7 @@
             }
         };
         LocalStorage.prototype.removeItem = function (key) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.removeItem(key));
             }
             else {
@@ -57,7 +64,7 @@
             }
         };
         LocalStorage.prototype.setItem = function (key, value) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.setItem(key, value));
             }
             else {
@@ -69,10 +76,13 @@
 
     var PostMessageHelper = /** @class */ (function () {
         function PostMessageHelper(sourceDomain) {
+            var _this = this;
             this.sourceDomain = sourceDomain;
             // We'll just ass-u-me local storage for now
             this.adapter = new LocalStorage();
-            window.addEventListener('message', this.messageHandler.bind(this));
+            this.adapter.initialize().then(function () {
+                window.addEventListener('message', _this.messageHandler.bind(_this));
+            });
         }
         PostMessageHelper.prototype.setAdapter = function (adapter) {
             this.adapter = adapter;

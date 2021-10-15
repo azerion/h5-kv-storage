@@ -59,18 +59,25 @@
 
     var LocalStorage = /** @class */ (function () {
         function LocalStorage() {
-            this.storageEnabled = false;
+            this.storageAvailable = false;
+            this.namespace = 'kvs';
+        }
+        LocalStorage.prototype.initialize = function () {
             try {
                 if (typeof localStorage === 'object') {
                     localStorage.setItem('kv-storage-test', 'true');
                     localStorage.removeItem('kv-storage-test');
-                    this.storageEnabled = true;
+                    this.storageAvailable = true;
+                    return Promise.resolve('ok');
                 }
             }
             catch (e) { }
-        }
+            return Promise.reject('Unable to local your storage');
+        };
+        LocalStorage.prototype.setNamespace = function (namespace) {
+        };
         LocalStorage.prototype.clear = function () {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.clear());
             }
             else {
@@ -78,7 +85,7 @@
             }
         };
         LocalStorage.prototype.getItem = function (key) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.getItem(key));
             }
             else {
@@ -86,7 +93,7 @@
             }
         };
         LocalStorage.prototype.key = function (index) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.key(index));
             }
             else {
@@ -94,7 +101,7 @@
             }
         };
         LocalStorage.prototype.length = function () {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.length);
             }
             else {
@@ -102,7 +109,7 @@
             }
         };
         LocalStorage.prototype.removeItem = function (key) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.removeItem(key));
             }
             else {
@@ -110,7 +117,7 @@
             }
         };
         LocalStorage.prototype.setItem = function (key, value) {
-            if (this.storageEnabled) {
+            if (this.storageAvailable) {
                 return Promise.resolve(localStorage.setItem(key, value));
             }
             else {
@@ -122,6 +129,7 @@
 
     var CookieStorage = /** @class */ (function () {
         function CookieStorage() {
+            this.storageAvailable = false;
         }
         CookieStorage.prototype.clear = function () {
             return Promise.resolve(undefined);
@@ -141,11 +149,17 @@
         CookieStorage.prototype.setItem = function (key, value) {
             return Promise.resolve(undefined);
         };
+        CookieStorage.prototype.initialize = function () {
+            return Promise.resolve('');
+        };
+        CookieStorage.prototype.setNamespace = function (namespace) {
+        };
         return CookieStorage;
     }());
 
     var XDomainTransfer = /** @class */ (function () {
         function XDomainTransfer(targetDomain) {
+            this.storageAvailable = false;
         }
         XDomainTransfer.prototype.clear = function () {
             return Promise.resolve(undefined);
@@ -165,6 +179,11 @@
         XDomainTransfer.prototype.setItem = function (key, value) {
             return Promise.resolve(undefined);
         };
+        XDomainTransfer.prototype.initialize = function () {
+            return Promise.resolve('');
+        };
+        XDomainTransfer.prototype.setNamespace = function (namespace) {
+        };
         return XDomainTransfer;
     }());
 
@@ -183,7 +202,7 @@
 
     var XDomain = /** @class */ (function () {
         function XDomain(xDomainName, iframeId) {
-            this.storageEnabled = false;
+            this.storageAvailable = false;
             this.xDomainName = '';
             this.target = window.parent;
             this.xDomainName = xDomainName;
@@ -196,7 +215,7 @@
         XDomain.prototype.initialize = function () {
             var _this = this;
             var _a, _b;
-            if (this.storageEnabled === true) {
+            if (this.storageAvailable === true) {
                 console.log('Adapter already initilized');
             }
             if ('complete' === ((_b = (_a = this.iframe) === null || _a === void 0 ? void 0 : _a.contentDocument) === null || _b === void 0 ? void 0 : _b.readyState)) ;
@@ -209,12 +228,14 @@
             }).then(function () { return _this.sendMessageToIframe({
                 command: StorageCommand.init
             }); }).then(function (message) {
-                _this.storageEnabled = true;
+                _this.storageAvailable = true;
                 return message;
             });
         };
+        XDomain.prototype.setNamespace = function (namespace) {
+        };
         XDomain.prototype.clear = function () {
-            if (!this.storageEnabled) {
+            if (!this.storageAvailable) {
                 return Promise.reject('XDomain storage not available');
             }
             return this.sendMessageToIframe({
@@ -222,7 +243,7 @@
             });
         };
         XDomain.prototype.getItem = function (key) {
-            if (!this.storageEnabled) {
+            if (!this.storageAvailable) {
                 return Promise.reject('XDomain storage not available');
             }
             return this.sendMessageToIframe({
@@ -231,7 +252,7 @@
             });
         };
         XDomain.prototype.key = function (index) {
-            if (!this.storageEnabled) {
+            if (!this.storageAvailable) {
                 return Promise.reject('XDomain storage not available');
             }
             return this.sendMessageToIframe({
@@ -240,7 +261,7 @@
             });
         };
         XDomain.prototype.length = function () {
-            if (!this.storageEnabled) {
+            if (!this.storageAvailable) {
                 return Promise.reject('XDomain storage not available');
             }
             return this.sendMessageToIframe({
@@ -248,7 +269,7 @@
             });
         };
         XDomain.prototype.removeItem = function (key) {
-            if (!this.storageEnabled) {
+            if (!this.storageAvailable) {
                 return Promise.reject('XDomain storage not available');
             }
             return this.sendMessageToIframe({
@@ -257,7 +278,7 @@
             });
         };
         XDomain.prototype.setItem = function (key, value) {
-            if (!this.storageEnabled) {
+            if (!this.storageAvailable) {
                 return Promise.reject('XDomain storage not available');
             }
             return this.sendMessageToIframe({
@@ -274,7 +295,7 @@
             }
             var messageChannel = new MessageChannel();
             return new Promise(function (resolve, reject) {
-                if (!_this.storageEnabled && message.command !== StorageCommand.init) {
+                if (!_this.storageAvailable && message.command !== StorageCommand.init) {
                     reject('Messaging not enabled!');
                 }
                 if (message.command === StorageCommand.init) {
@@ -312,7 +333,7 @@
                             break;
                     }
                 };
-                if (_this.storageEnabled || message.command === StorageCommand.init) {
+                if (_this.storageAvailable || message.command === StorageCommand.init) {
                     console.log('Sending message to parent: ', message);
                     _this.target.postMessage(message, _this.xDomainName, [messageChannel.port2]);
                 }
@@ -322,39 +343,68 @@
     }());
 
     var KvStorage = /** @class */ (function () {
-        function KvStorage(namespace) {
-            if (namespace === void 0) { namespace = 'kvs'; }
-            this.storageAdapter = new LocalStorage();
-            this.namespace = namespace;
+        function KvStorage() {
+            this.namespace = '';
         }
         KvStorage.prototype.setNamespace = function (namedSpace) {
+            var _a;
             this.namespace = namedSpace;
+            (_a = this.storageAdapter) === null || _a === void 0 ? void 0 : _a.setNamespace(this.namespace);
         };
         KvStorage.prototype.setAdapter = function (storageAdapter) {
+            var _this = this;
             this.storageAdapter = storageAdapter;
+            return this.storageAdapter.initialize().then(function (status) {
+                var _a;
+                console.log(status);
+                if (status !== 'ok') {
+                    _this.storageAdapter = undefined;
+                    return Promise.reject('Unable to initiliaze adapter!');
+                }
+                (_a = _this.storageAdapter) === null || _a === void 0 ? void 0 : _a.setNamespace(_this.namespace);
+                return 'ok';
+            });
         };
         Object.defineProperty(KvStorage.prototype, "length", {
             get: function () {
+                if (!this.storageAdapter) {
+                    return Promise.reject('No adapter configured!');
+                }
                 return this.storageAdapter.length();
             },
             enumerable: false,
             configurable: true
         });
         KvStorage.prototype.key = function (n) {
+            if (!this.storageAdapter) {
+                return Promise.reject('No adapter configured!');
+            }
             return this.storageAdapter.key(n);
         };
         KvStorage.prototype.getItem = function (key) {
-            return this.storageAdapter.getItem(this.namespace + ':' + key);
+            if (!this.storageAdapter) {
+                return Promise.reject('No adapter configured!');
+            }
+            return this.storageAdapter.getItem(key);
         };
         KvStorage.prototype.setItem = function (key, value) {
-            return this.storageAdapter.setItem(this.namespace + ':' + key, value);
+            if (!this.storageAdapter) {
+                return Promise.reject('No adapter configured!');
+            }
+            return this.storageAdapter.setItem(key, value);
         };
         KvStorage.prototype.removeItem = function (key) {
-            return this.storageAdapter.removeItem(this.namespace + ':' + key);
+            if (!this.storageAdapter) {
+                return Promise.reject('No adapter configured!');
+            }
+            return this.storageAdapter.removeItem(key);
         };
         KvStorage.prototype.clear = function () {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
+                    if (!this.storageAdapter) {
+                        return [2 /*return*/, Promise.reject('No adapter configured!')];
+                    }
                     return [2 /*return*/, this.storageAdapter.clear()];
                 });
             });

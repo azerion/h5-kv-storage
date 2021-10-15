@@ -1,11 +1,12 @@
-import { StorageAdapter } from './';
-export declare class XDomain implements StorageAdapter {
-    storageEnabled: boolean;
+import { IStorageAdapter } from './';
+export declare class XDomain implements IStorageAdapter {
+    storageAvailable: boolean;
     private xDomainName;
     private target;
     private iframe;
     constructor(xDomainName: string, iframeId?: string);
     initialize(): Promise<string>;
+    setNamespace(namespace: string): void;
     clear(): Promise<void>;
     getItem(key: string): Promise<string | null>;
     key(index: number): Promise<string | null>;

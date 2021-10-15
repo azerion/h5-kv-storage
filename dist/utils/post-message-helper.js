@@ -5,10 +5,13 @@ var _1 = require("./");
 var adapters_1 = require("../adapters");
 var PostMessageHelper = /** @class */ (function () {
     function PostMessageHelper(sourceDomain) {
+        var _this = this;
         this.sourceDomain = sourceDomain;
         // We'll just ass-u-me local storage for now
         this.adapter = new adapters_1.LocalStorage();
-        window.addEventListener('message', this.messageHandler.bind(this));
+        this.adapter.initialize().then(function () {
+            window.addEventListener('message', _this.messageHandler.bind(_this));
+        });
     }
     PostMessageHelper.prototype.setAdapter = function (adapter) {
         this.adapter = adapter;

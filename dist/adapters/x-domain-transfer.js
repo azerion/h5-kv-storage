@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.XDomainTransfer = void 0;
 var XDomainTransfer = /** @class */ (function () {
     function XDomainTransfer(targetDomain) {
+        this.storageAvailable = false;
     }
     XDomainTransfer.prototype.clear = function () {
         return Promise.resolve(undefined);
@@ -21,6 +22,11 @@ var XDomainTransfer = /** @class */ (function () {
     };
     XDomainTransfer.prototype.setItem = function (key, value) {
         return Promise.resolve(undefined);
+    };
+    XDomainTransfer.prototype.initialize = function () {
+        return Promise.resolve('');
+    };
+    XDomainTransfer.prototype.setNamespace = function (namespace) {
     };
     return XDomainTransfer;
 }());

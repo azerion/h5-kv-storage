@@ -4,7 +4,7 @@ exports.XDomain = void 0;
 var utils_1 = require("../utils");
 var XDomain = /** @class */ (function () {
     function XDomain(xDomainName, iframeId) {
-        this.storageEnabled = false;
+        this.storageAvailable = false;
         this.xDomainName = '';
         this.target = window.parent;
         this.xDomainName = xDomainName;
@@ -17,7 +17,7 @@ var XDomain = /** @class */ (function () {
     XDomain.prototype.initialize = function () {
         var _this = this;
         var _a, _b;
-        if (this.storageEnabled === true) {
+        if (this.storageAvailable === true) {
             console.log('Adapter already initilized');
         }
         if ('complete' === ((_b = (_a = this.iframe) === null || _a === void 0 ? void 0 : _a.contentDocument) === null || _b === void 0 ? void 0 : _b.readyState)) {
@@ -31,12 +31,14 @@ var XDomain = /** @class */ (function () {
         }).then(function () { return _this.sendMessageToIframe({
             command: utils_1.StorageCommand.init
         }); }).then(function (message) {
-            _this.storageEnabled = true;
+            _this.storageAvailable = true;
             return message;
         });
     };
+    XDomain.prototype.setNamespace = function (namespace) {
+    };
     XDomain.prototype.clear = function () {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
         return this.sendMessageToIframe({
@@ -44,7 +46,7 @@ var XDomain = /** @class */ (function () {
         });
     };
     XDomain.prototype.getItem = function (key) {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
         return this.sendMessageToIframe({
@@ -53,7 +55,7 @@ var XDomain = /** @class */ (function () {
         });
     };
     XDomain.prototype.key = function (index) {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
         return this.sendMessageToIframe({
@@ -62,7 +64,7 @@ var XDomain = /** @class */ (function () {
         });
     };
     XDomain.prototype.length = function () {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
         return this.sendMessageToIframe({
@@ -70,7 +72,7 @@ var XDomain = /** @class */ (function () {
         });
     };
     XDomain.prototype.removeItem = function (key) {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
         return this.sendMessageToIframe({
@@ -79,7 +81,7 @@ var XDomain = /** @class */ (function () {
         });
     };
     XDomain.prototype.setItem = function (key, value) {
-        if (!this.storageEnabled) {
+        if (!this.storageAvailable) {
             return Promise.reject('XDomain storage not available');
         }
         return this.sendMessageToIframe({
@@ -96,7 +98,7 @@ var XDomain = /** @class */ (function () {
         }
         var messageChannel = new MessageChannel();
         return new Promise(function (resolve, reject) {
-            if (!_this.storageEnabled && message.command !== utils_1.StorageCommand.init) {
+            if (!_this.storageAvailable && message.command !== utils_1.StorageCommand.init) {
                 reject('Messaging not enabled!');
             }
             if (message.command === utils_1.StorageCommand.init) {
@@ -134,7 +136,7 @@ var XDomain = /** @class */ (function () {
                         break;
                 }
             };
-            if (_this.storageEnabled || message.command === utils_1.StorageCommand.init) {
+            if (_this.storageAvailable || message.command === utils_1.StorageCommand.init) {
                 console.log('Sending message to parent: ', message);
                 _this.target.postMessage(message, _this.xDomainName, [messageChannel.port2]);
             }

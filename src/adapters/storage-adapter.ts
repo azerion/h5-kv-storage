@@ -1,4 +1,9 @@
-export interface StorageAdapter {
+export interface IStorageAdapter {
+    namespace?: string;
+    storageAvailable: boolean;
+
+    initialize(): Promise<string>;
+    setNamespace(namespace: string): void;
     length(): Promise<number>;
     getItem(key: string): Promise<string | null>;
     setItem(key: string, value: string): Promise<void>;
