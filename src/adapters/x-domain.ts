@@ -6,14 +6,43 @@ export class XDomain implements StorageAdapter {
 
     private xDomainName: string = '';
 
-    constructor(xDomainName: string) {
+    private target: WindowProxy = window.parent;
+
+    private iframe: HTMLIFrameElement;
+
+    constructor(xDomainName: string, iframeId?: string) {
         this.xDomainName = xDomainName;
 
-        this.sendMessageToIframe({
+        if (iframeId && document.querySelector(iframeId) !== null) {
+            this.iframe = document.querySelector(iframeId) as HTMLIFrameElement;
+
+            return
+        }
+
+        this.iframe = document.createElement('iframe');
+    }
+
+    public initialize(): Promise<string> {
+        if (this.storageEnabled === true) {
+            console.log('Adapter already initilized');
+        }
+
+        if ('complete' === this.iframe?.contentDocument?.readyState) {
+        }
+
+        return new Promise( (resolve: any) => {
+            this.iframe.addEventListener("load", () => {
+                console.log('loaded!');
+                this.target = this.iframe.contentWindow as WindowProxy;
+                resolve();
+            });
+        }).then(() => this.sendMessageToIframe({
             command: StorageCommand.init
-        }).then(() => {
+        })).then((message) => {
             this.storageEnabled = true;
-        });
+
+            return message;
+        }) as Promise<string>;
     }
 
     public clear(): Promise<void> {
@@ -75,7 +104,7 @@ export class XDomain implements StorageAdapter {
         }
 
         return this.sendMessageToIframe({
-            command: StorageCommand.removeItem,
+            command: StorageCommand.setItem,
             key: key,
             value: value
         }) as Promise<void>;
@@ -104,27 +133,21 @@ export class XDomain implements StorageAdapter {
             }
 
             messageChannel.port1.onmessage = (event: MessageEvent) => {
-                console.log('Frame received message', event);
-
-                let receivedMessage: IStorageMessage = (event.data && event.data.command) ? event.data : null;
-
-                if (receivedMessage.command === StorageCommand.init) {
-                    returnedResult = true;
-                }
+                let receivedMessage: IStorageMessage = (event.data && event.data.hasOwnProperty('command')) ? event.data : null;
 
                 if (receivedMessage.status === undefined || receivedMessage.status !== 'ok') {
                     reject(receivedMessage.value);
                 }
 
-                if (receivedMessage.length !== undefined) {
-                    resolve(receivedMessage.length);
-                }
+                console.log('Message received from target', StorageCommand[receivedMessage.command], event);
 
                 switch (receivedMessage.command) {
                     case StorageCommand.setNamespace:
                         // this.namespace = receivedMessage.value + ':';
-                    case StorageCommand.getItem:
                     case StorageCommand.length:
+                        resolve(receivedMessage.length);
+                        break;
+                    case StorageCommand.getItem:
                     case StorageCommand.key:
                         resolve(receivedMessage.value);
                         break;
@@ -142,7 +165,7 @@ export class XDomain implements StorageAdapter {
 
             if (this.storageEnabled || message.command === StorageCommand.init) {
                 console.log('Sending message to parent: ', message);
-                window.parent.postMessage(message, this.xDomainName, [messageChannel.port2]);
+               this.target.postMessage(message, this.xDomainName, [messageChannel.port2]);
             }
         });
     }

@@ -1,4 +1,5 @@
 import { StorageAdapter, LocalStorage } from './adapters'
+export * from './adapters'
 export class KvStorage {
     private storageAdapter: StorageAdapter;
 

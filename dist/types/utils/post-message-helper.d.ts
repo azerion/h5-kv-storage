@@ -1,7 +1,9 @@
 import { StorageAdapter } from '../adapters';
 export declare class PostMessageHelper {
-    private namespace;
     private adapter;
-    constructor(namespace?: string);
+    private sourceDomain;
+    constructor(sourceDomain: string);
     setAdapter(adapter: StorageAdapter): void;
+    private sendError;
+    private messageHandler;
 }

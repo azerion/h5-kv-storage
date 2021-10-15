@@ -3,17 +3,38 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.XDomain = void 0;
 var utils_1 = require("../utils");
 var XDomain = /** @class */ (function () {
-    function XDomain(xDomainName) {
-        var _this = this;
+    function XDomain(xDomainName, iframeId) {
         this.storageEnabled = false;
         this.xDomainName = '';
+        this.target = window.parent;
         this.xDomainName = xDomainName;
-        this.sendMessageToIframe({
-            command: utils_1.StorageCommand.init
-        }).then(function () {
-            _this.storageEnabled = true;
-        });
+        if (iframeId && document.querySelector(iframeId) !== null) {
+            this.iframe = document.querySelector(iframeId);
+            return;
+        }
+        this.iframe = document.createElement('iframe');
     }
+    XDomain.prototype.initialize = function () {
+        var _this = this;
+        var _a, _b;
+        if (this.storageEnabled === true) {
+            console.log('Adapter already initilized');
+        }
+        if ('complete' === ((_b = (_a = this.iframe) === null || _a === void 0 ? void 0 : _a.contentDocument) === null || _b === void 0 ? void 0 : _b.readyState)) {
+        }
+        return new Promise(function (resolve) {
+            _this.iframe.addEventListener("load", function () {
+                console.log('loaded!');
+                _this.target = _this.iframe.contentWindow;
+                resolve();
+            });
+        }).then(function () { return _this.sendMessageToIframe({
+            command: utils_1.StorageCommand.init
+        }); }).then(function (message) {
+            _this.storageEnabled = true;
+            return message;
+        });
+    };
     XDomain.prototype.clear = function () {
         if (!this.storageEnabled) {
             return Promise.reject('XDomain storage not available');
@@ -62,7 +83,7 @@ var XDomain = /** @class */ (function () {
             return Promise.reject('XDomain storage not available');
         }
         return this.sendMessageToIframe({
-            command: utils_1.StorageCommand.removeItem,
+            command: utils_1.StorageCommand.setItem,
             key: key,
             value: value
         });
@@ -87,22 +108,18 @@ var XDomain = /** @class */ (function () {
                 }, 1000);
             }
             messageChannel.port1.onmessage = function (event) {
-                console.log('Frame received message', event);
-                var receivedMessage = (event.data && event.data.command) ? event.data : null;
-                if (receivedMessage.command === utils_1.StorageCommand.init) {
-                    returnedResult = true;
-                }
+                var receivedMessage = (event.data && event.data.hasOwnProperty('command')) ? event.data : null;
                 if (receivedMessage.status === undefined || receivedMessage.status !== 'ok') {
                     reject(receivedMessage.value);
                 }
-                if (receivedMessage.length !== undefined) {
-                    resolve(receivedMessage.length);
-                }
+                console.log('Message received from target', utils_1.StorageCommand[receivedMessage.command], event);
                 switch (receivedMessage.command) {
                     case utils_1.StorageCommand.setNamespace:
                     // this.namespace = receivedMessage.value + ':';
-                    case utils_1.StorageCommand.getItem:
                     case utils_1.StorageCommand.length:
+                        resolve(receivedMessage.length);
+                        break;
+                    case utils_1.StorageCommand.getItem:
                     case utils_1.StorageCommand.key:
                         resolve(receivedMessage.value);
                         break;
@@ -119,7 +136,7 @@ var XDomain = /** @class */ (function () {
             };
             if (_this.storageEnabled || message.command === utils_1.StorageCommand.init) {
                 console.log('Sending message to parent: ', message);
-                window.parent.postMessage(message, _this.xDomainName, [messageChannel.port2]);
+                _this.target.postMessage(message, _this.xDomainName, [messageChannel.port2]);
             }
         });
     };

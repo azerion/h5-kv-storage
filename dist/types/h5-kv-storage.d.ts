@@ -1,4 +1,5 @@
 import { StorageAdapter } from './adapters';
+export * from './adapters';
 export declare class KvStorage {
     private storageAdapter;
     private namespace;
