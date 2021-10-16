@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostMessageHelper = void 0;
 var _1 = require("./");
 var adapters_1 = require("../adapters");
+var log_1 = require("../utils/log");
 var PostMessageHelper = /** @class */ (function () {
     function PostMessageHelper(sourceDomain) {
         var _this = this;
@@ -36,10 +37,10 @@ var PostMessageHelper = /** @class */ (function () {
             return;
         }
         if (null !== receivedMessage) {
-            console.log('Message received from host: ', _1.StorageCommand[receivedMessage.command], event);
+            (0, log_1.log)(this.constructor.name, 'Message received from ' + this.sourceDomain + ': ' + _1.StorageCommand[receivedMessage.command], log_1.LogStatus.debug);
             switch (receivedMessage.command) {
                 case _1.StorageCommand.init:
-                    console.log('Remote resource initialized');
+                    (0, log_1.log)(this.constructor.name, 'Remote resource initialized', log_1.LogStatus.debug);
                     source.postMessage({
                         status: 'ok',
                         command: receivedMessage.command

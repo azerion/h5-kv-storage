@@ -1,5 +1,5 @@
 import {IStorageAdapter} from './adapters';
-import {log, LogStatus, setDebug} from './utils/log';
+import {log, LogStatus, setLoglevel} from './utils/log';
 
 export * from './adapters'
 
@@ -8,10 +8,9 @@ export class KvStorage {
 
     private namespace: string = '';
 
-    constructor(debug: boolean = false) {
-        setDebug(debug);
+    constructor(level: LogStatus = LogStatus.none) {
+        setLoglevel(level);
     }
-
 
     public setNamespace(namedSpace: string): void | Promise<void> {
         this.namespace = namedSpace;
@@ -21,9 +20,9 @@ export class KvStorage {
 
     public setAdapter(storageAdapter: IStorageAdapter): Promise<string> {
         this.storageAdapter = storageAdapter;
-        log('KvStorage', 'addding adapter', LogStatus.info);
+
+        log(this.constructor.name, 'addding and initializing adapter: ' + storageAdapter.constructor.name, LogStatus.info);
         return this.storageAdapter.initialize().then((status) => {
-            console.log(status);
             if (status !== 'ok') {
                 this.storageAdapter = undefined;
                 return Promise.reject('Unable to initiliaze adapter!');
@@ -39,6 +38,7 @@ export class KvStorage {
             return Promise.reject('No adapter configured!');
         }
 
+        log(this.constructor.name, 'Calling length() on storage adapter', LogStatus.debug);
         return this.storageAdapter.length();
     }
 
@@ -47,6 +47,7 @@ export class KvStorage {
             return Promise.reject('No adapter configured!');
         }
 
+        log(this.constructor.name, 'Calling key() on storage adapter', LogStatus.debug);
         return this.storageAdapter.key(n);
     }
 
@@ -55,6 +56,7 @@ export class KvStorage {
             return Promise.reject('No adapter configured!');
         }
 
+        log(this.constructor.name, 'Calling getItem() on storage adapter', LogStatus.debug);
         return this.storageAdapter.getItem(key);
     }
 
@@ -63,6 +65,7 @@ export class KvStorage {
             return Promise.reject('No adapter configured!');
         }
 
+        log(this.constructor.name, 'Calling setItem() on storage adapter', LogStatus.debug);
         return this.storageAdapter.setItem(key, value);
     }
 
@@ -71,6 +74,7 @@ export class KvStorage {
             return Promise.reject('No adapter configured!');
         }
 
+        log(this.constructor.name, 'Calling removeItem() on storage adapter', LogStatus.debug);
         return this.storageAdapter.removeItem(key);
     }
 
@@ -79,6 +83,7 @@ export class KvStorage {
             return Promise.reject('No adapter configured!');
         }
 
+        log(this.constructor.name, 'Calling clear() on storage adapter', LogStatus.debug);
         return this.storageAdapter.clear();
     }
 }

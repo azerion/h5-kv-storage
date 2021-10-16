@@ -1,16 +1,17 @@
 const t: number = Date.now();
 
-let debug: boolean = false;
-
 export enum LogStatus {
     error,
     warn,
     info,
-    debug
+    debug,
+    none,
 }
 
-export function setDebug(status: boolean) {
-    debug = status;
+let logLevel: LogStatus = LogStatus.none;
+
+export function setLoglevel(level: LogStatus) {
+    logLevel = level;
 }
 
 let themes: string[] = [
@@ -30,7 +31,7 @@ let themes: string[] = [
  * @public
  */
 export function log(name: string, message: string, status: LogStatus = LogStatus.debug): void {
-    if (!debug) {
+    if (status > logLevel) {
         return;
     }
 

@@ -1,5 +1,6 @@
 import {IStorageAdapter} from './';
 import {IStorageMessage, StorageCommand} from '../utils';
+import {log, LogStatus} from '../utils/log';
 
 export class XDomainStorage implements IStorageAdapter {
     public storageAvailable: boolean = false;
@@ -21,7 +22,7 @@ export class XDomainStorage implements IStorageAdapter {
 
     public initialize(): Promise<string> {
         if (this.storageAvailable === true) {
-            console.log('Adapter already initialized');
+            Promise.reject('Adapter already initialized');
         }
 
         if (this.iframe === undefined) {
@@ -34,7 +35,6 @@ export class XDomainStorage implements IStorageAdapter {
             return new Promise((resolve: any) => {
                 // @ts-ignore
                 this.iframe.addEventListener('load', () => {
-                    console.log('loaded!');
                     // @ts-ignore
                     this.target = this.iframe.contentWindow as WindowProxy;
                     resolve();
@@ -155,8 +155,7 @@ export class XDomainStorage implements IStorageAdapter {
                 if (receivedMessage.status === undefined || receivedMessage.status !== 'ok') {
                     reject(receivedMessage.value);
                 }
-
-                console.log('Message received from target', StorageCommand[receivedMessage.command], event);
+                log(this.constructor.name, 'Message received from ' + this.xDomainName + ': ' + StorageCommand[receivedMessage.command], LogStatus.debug);
 
                 switch (receivedMessage.command) {
                     case StorageCommand.length:
@@ -180,7 +179,7 @@ export class XDomainStorage implements IStorageAdapter {
             };
 
             if (this.storageAvailable || message.command === StorageCommand.init) {
-                console.log('Sending message to parent: ', message);
+                log(this.constructor.name, 'Sending message to ' + this.xDomainName + ': ' + StorageCommand[message.command], LogStatus.debug);
                 this.target.postMessage(message, this.xDomainName, [messageChannel.port2]);
             }
         });

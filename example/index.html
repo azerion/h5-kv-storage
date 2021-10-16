@@ -16,7 +16,7 @@
         var cookie = new kvstorage.CookieStorage();
         var local = new kvstorage.LocalStorage();
         var transfer = new kvstorage.TransferStorage(xdomain, local);
-        var storage = new kvstorage.KvStorage(true);
+        var storage = new kvstorage.KvStorage(3);
 
         storage.setAdapter(transfer)
             // .then(() => storage.setItem('foo', 'bar'))

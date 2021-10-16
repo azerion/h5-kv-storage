@@ -1,5 +1,6 @@
 import { StorageCommand, IStorageMessage } from './'
 import { IStorageAdapter, LocalStorage } from '../adapters'
+import {log, LogStatus} from '../utils/log';
 
 export class PostMessageHelper {
     // private namespace: string;
@@ -45,11 +46,12 @@ export class PostMessageHelper {
         }
 
         if (null !== receivedMessage) {
-            console.log('Message received from host: ', StorageCommand[receivedMessage.command],event)
+            log(this.constructor.name, 'Message received from ' + this.sourceDomain + ': ' + StorageCommand[receivedMessage.command], LogStatus.debug);
 
             switch (receivedMessage.command) {
                 case StorageCommand.init:
-                    console.log('Remote resource initialized');
+                    log(this.constructor.name, 'Remote resource initialized', LogStatus.debug);
+
                     source.postMessage(<IStorageMessage>{
                         status: 'ok',
                         command: receivedMessage.command

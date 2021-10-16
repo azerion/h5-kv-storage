@@ -1,9 +1,10 @@
 import { IStorageAdapter } from './adapters';
+import { LogStatus } from './utils/log';
 export * from './adapters';
 export declare class KvStorage {
     private storageAdapter?;
     private namespace;
-    constructor(debug?: boolean);
+    constructor(level?: LogStatus);
     setNamespace(namedSpace: string): void | Promise<void>;
     setAdapter(storageAdapter: IStorageAdapter): Promise<string>;
     length(): Promise<number>;
