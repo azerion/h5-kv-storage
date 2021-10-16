@@ -4,24 +4,26 @@
     <meta charset="UTF-8">
     <title>My Primairy Domain</title>
 
-    <script src="/dist/h5-kv-storage.js"></script>
+    <script src="/dist/h5-kv-storage.umd.js"></script>
 </head>
 <body>
-    <iframe id="xdomain-storage" src="//test.poki.nl/example/xdomain.html"></iframe>
+    <iframe id="xdomain-storage" src="http://test.poki.nl/example/xdomain.html"></iframe>
 
     <script type="application/javascript">
         console.log('Hello from: ', window.location.host);
 
-        var adapter = new kvstorage.XDomain('http://test.poki.nl', '#xdomain-storage');
-        var storage = new kvstorage.KvStorage();
+        var xdomain = new kvstorage.XDomainStorage('http://test.poki.nl', '#xdomain-storage');
+        var cookie = new kvstorage.CookieStorage();
+        var local = new kvstorage.LocalStorage();
+        var transfer = new kvstorage.TransferStorage(xdomain, local);
+        var storage = new kvstorage.KvStorage(true);
 
-        storage.setAdapter(adapter);
-        adapter.initialize()
-            .then(() => storage.setItem('foo', 'bar'))
-            .then((status) => console.log('Status for setting on target domain:', status))
+        storage.setAdapter(transfer)
+            // .then(() => storage.setItem('foo', 'bar'))
+            // .then((status) => console.log('Status for setting on target domain:', status))
             .then(() => storage.getItem('foo'))
             .then((value) => console.log('Fetching foo from target domain:', value))
-            .then(() => adapter.length())
+            .then(() => storage.length())
             .then((length) => console.log('Fetching length from target domain:', length))
     </script>
 </body>

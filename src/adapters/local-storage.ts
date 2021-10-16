@@ -3,7 +3,7 @@ import { IStorageAdapter } from './';
 export class LocalStorage implements IStorageAdapter {
     public storageAvailable: boolean = false;
 
-    public namespace: string = 'kvs';
+    public namespace: string = '';
 
     constructor() {}
 
@@ -22,7 +22,7 @@ export class LocalStorage implements IStorageAdapter {
     }
 
     public setNamespace(namespace: string): void {
-
+        this.namespace = namespace;
     }
 
     public clear(): Promise<void> {
@@ -35,7 +35,7 @@ export class LocalStorage implements IStorageAdapter {
 
     public getItem(key: string): Promise<string | null> {
         if (this.storageAvailable) {
-            return Promise.resolve(localStorage.getItem(key));
+            return Promise.resolve(localStorage.getItem(this.namespace + key));
         } else {
             return Promise.reject("LocalStorage not available");
         }
@@ -59,7 +59,7 @@ export class LocalStorage implements IStorageAdapter {
 
     public removeItem(key: string): Promise<void> {
         if (this.storageAvailable) {
-            return Promise.resolve(localStorage.removeItem(key));
+            return Promise.resolve(localStorage.removeItem(this.namespace + key));
         } else {
             return Promise.reject("LocalStorage not available");
         }
@@ -67,7 +67,7 @@ export class LocalStorage implements IStorageAdapter {
 
     public setItem(key: string, value: string): Promise<void> {
         if (this.storageAvailable) {
-            return Promise.resolve(localStorage.setItem(key, value));
+            return Promise.resolve(localStorage.setItem(this.namespace + key, value));
         } else {
             return Promise.reject("LocalStorage not available");
         }

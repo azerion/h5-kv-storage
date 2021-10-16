@@ -1,9 +1,17 @@
-import { IStorageAdapter, LocalStorage } from './adapters'
+import {IStorageAdapter} from './adapters';
+import {log, LogStatus, setDebug} from './utils/log';
+
 export * from './adapters'
+
 export class KvStorage {
     private storageAdapter?: IStorageAdapter;
 
     private namespace: string = '';
+
+    constructor(debug: boolean = false) {
+        setDebug(debug);
+    }
+
 
     public setNamespace(namedSpace: string): void | Promise<void> {
         this.namespace = namedSpace;
@@ -13,7 +21,7 @@ export class KvStorage {
 
     public setAdapter(storageAdapter: IStorageAdapter): Promise<string> {
         this.storageAdapter = storageAdapter;
-
+        log('KvStorage', 'addding adapter', LogStatus.info);
         return this.storageAdapter.initialize().then((status) => {
             console.log(status);
             if (status !== 'ok') {
@@ -26,7 +34,7 @@ export class KvStorage {
         });
     }
 
-    get length(): Promise<number> {
+    public length(): Promise<number> {
         if (!this.storageAdapter) {
             return Promise.reject('No adapter configured!');
         }

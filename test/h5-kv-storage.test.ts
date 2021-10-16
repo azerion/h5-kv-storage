@@ -1,14 +1,14 @@
-import DummyClass from "../src/mylib"
+import {KvStorage} from "../src/h5-kv-storage"
 
 /**
  * Dummy test
  */
-describe('Dummy test', () => {
-  it('works if true is truthy', () => {
-    expect(true).toBeTruthy()
-  })
+describe('Kv Storage', () => {
+  // it('works if true is truthy', () => {
+  //   expect(true).toBeTruthy()
+  // })
 
-  it('DummyClass is instantiable', () => {
-    expect(new DummyClass()).toBeInstanceOf(DummyClass)
+  it('KvStorage is instantiable', () => {
+    expect(new KvStorage()).toBeInstanceOf(KvStorage)
   })
 })

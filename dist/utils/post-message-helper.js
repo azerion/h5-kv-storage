@@ -86,14 +86,11 @@ var PostMessageHelper = /** @class */ (function () {
                     break;
                 case _1.StorageCommand.setNamespace:
                     try {
-                        // this.adapter.setNamespace(receivedMessage.value);
-                        //
-                        // source.postMessage(<IStorageMessage>{
-                        //     status: 'ok',
-                        //     command: receivedMessage.command,
-                        //     value: receivedMessage.value,
-                        //     length: this.adapter.length
-                        // });
+                        this.adapter.setNamespace(receivedMessage.value);
+                        source.postMessage({
+                            status: 'ok',
+                            command: receivedMessage.command
+                        });
                     }
                     catch (e) {
                         this.sendError(source, receivedMessage.command, e.message);

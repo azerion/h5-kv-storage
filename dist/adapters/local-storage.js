@@ -4,7 +4,7 @@ exports.LocalStorage = void 0;
 var LocalStorage = /** @class */ (function () {
     function LocalStorage() {
         this.storageAvailable = false;
-        this.namespace = 'kvs';
+        this.namespace = '';
     }
     LocalStorage.prototype.initialize = function () {
         try {
@@ -19,6 +19,7 @@ var LocalStorage = /** @class */ (function () {
         return Promise.reject('Unable to local your storage');
     };
     LocalStorage.prototype.setNamespace = function (namespace) {
+        this.namespace = namespace;
     };
     LocalStorage.prototype.clear = function () {
         if (this.storageAvailable) {
@@ -30,7 +31,7 @@ var LocalStorage = /** @class */ (function () {
     };
     LocalStorage.prototype.getItem = function (key) {
         if (this.storageAvailable) {
-            return Promise.resolve(localStorage.getItem(key));
+            return Promise.resolve(localStorage.getItem(this.namespace + key));
         }
         else {
             return Promise.reject("LocalStorage not available");
@@ -54,7 +55,7 @@ var LocalStorage = /** @class */ (function () {
     };
     LocalStorage.prototype.removeItem = function (key) {
         if (this.storageAvailable) {
-            return Promise.resolve(localStorage.removeItem(key));
+            return Promise.resolve(localStorage.removeItem(this.namespace + key));
         }
         else {
             return Promise.reject("LocalStorage not available");
@@ -62,7 +63,7 @@ var LocalStorage = /** @class */ (function () {
     };
     LocalStorage.prototype.setItem = function (key, value) {
         if (this.storageAvailable) {
-            return Promise.resolve(localStorage.setItem(key, value));
+            return Promise.resolve(localStorage.setItem(this.namespace + key, value));
         }
         else {
             return Promise.reject("LocalStorage not available");

@@ -4,9 +4,6 @@ import sourceMaps from 'rollup-plugin-sourcemaps'
 import { default as typescript } from '@rollup/plugin-typescript'
 import json from '@rollup/plugin-json'
 
-const pkg = require('./package.json')
-
-const libraryName = 'h5-kv-storage'
 const plugins = [
   // Allow json resolution
   json(),
@@ -24,9 +21,10 @@ const plugins = [
 ];
 
 export default [{
-  input: `src/${libraryName}.ts`,
+  input: `src/h5-kv-storage.ts`,
   output: [
-    { file: `dist/${libraryName}.js`, name: 'kvstorage', format: 'umd' , sourcemap: true},
+    { file: `dist/h5-kv-storage.umd.js`, name: 'kvstorage', format: 'umd' , sourcemap: true},
+    { file: `dist/h5-kv-storage.esm.js`, format: 'esm' , sourcemap: true},
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [],
@@ -37,7 +35,8 @@ export default [{
 }, {
   input: `src/h5-xdomain-storage.ts`,
   output: [
-    { file: `dist/h5-xdomain-storage.js`, name: 'xdstorage', format: 'umd' , sourcemap: true},
+    { file: `dist/h5-xdomain-storage.umd.js`, name: 'xdstorage', format: 'umd' , sourcemap: true},
+    { file: `dist/h5-xdomain-storage.esm.js`, format: 'esm' , sourcemap: true},
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [],

@@ -13,6 +13,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./storage-adapter"), exports);
 __exportStar(require("./local-storage"), exports);
 __exportStar(require("./cookie-storage"), exports);
-__exportStar(require("./x-domain-transfer"), exports);
-__exportStar(require("./x-domain"), exports);
+__exportStar(require("./transfer-storage"), exports);
+__exportStar(require("./x-domain-storage"), exports);
 //# sourceMappingURL=index.js.map
