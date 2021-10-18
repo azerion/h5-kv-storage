@@ -1,6 +1,6 @@
 const t: number = Date.now()
 
-export enum LogStatus {
+export enum LogLevel {
   error,
   warn,
   info,
@@ -8,9 +8,9 @@ export enum LogStatus {
   none,
 }
 
-let logLevel: LogStatus = LogStatus.none
+let logLevel: LogLevel = LogLevel.none
 
-export function setLoglevel(level: LogStatus): void {
+export function setLoglevel(level: LogLevel): void {
   logLevel = level
 }
 
@@ -33,9 +33,9 @@ const themes: string[] = [
 export function log(
   name: string,
   message: string,
-  status: LogStatus = LogStatus.debug
+  status: LogLevel = LogLevel.debug
 ): void {
-  if (status > logLevel) {
+  if (!(status <= logLevel)) {
     return
   }
 

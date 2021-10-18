@@ -4,6 +4,47 @@
     (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.xdstorage = {}));
 })(this, (function (exports) { 'use strict';
 
+    var t = Date.now();
+    var LogLevel;
+    (function (LogLevel) {
+        LogLevel[LogLevel["error"] = 0] = "error";
+        LogLevel[LogLevel["warn"] = 1] = "warn";
+        LogLevel[LogLevel["info"] = 2] = "info";
+        LogLevel[LogLevel["debug"] = 3] = "debug";
+        LogLevel[LogLevel["none"] = 4] = "none";
+    })(LogLevel || (LogLevel = {}));
+    var logLevel = LogLevel.none;
+    function setLoglevel(level) {
+        logLevel = level;
+    }
+    var themes = [
+        'background: #c4161e; color: #fff',
+        'background: #ff8c1c; color: #fff',
+        'background: #ff0080; color: #fff',
+        'background: #44a5ab; color: #fff',
+    ];
+    /**
+     * log
+     * Just shows stuff in as dank as possible.
+     *
+     * @param {String} name
+     * @param {String} message
+     * @param {String} status
+     * @public
+     */
+    function log(name, message, status) {
+        if (status === void 0) { status = LogLevel.debug; }
+        if (!(status <= logLevel)) {
+            return;
+        }
+        console.log('[' +
+            ((Date.now() - t) / 1000).toString() +
+            's]' +
+            '%c %c %c h5-kv-storage %c %c %c ' +
+            name +
+            ' ', 'background: #278CEB', 'background:#006db6', 'color: #fff; background: #001c4a;', 'background: #006db6', 'background: #278CEB', themes[status], typeof message !== 'undefined' ? message : '');
+    }
+
     var LocalStorage = /** @class */ (function () {
         function LocalStorage() {
             this.storageAvailable = false;
@@ -15,13 +56,18 @@
                     localStorage.setItem('kv-storage-test', 'true');
                     localStorage.removeItem('kv-storage-test');
                     this.storageAvailable = true;
+                    log(this.constructor.name, 'Initialized', LogLevel.debug);
                     return Promise.resolve('ok');
+                }
+                else {
+                    log(this.constructor.name, 'localStorage not available', LogLevel.warn);
+                    return Promise.reject('Unable to local your storage');
                 }
             }
             catch (e) {
+                log(this.constructor.name, 'localStorage crashed during initialisation', LogLevel.warn);
                 return Promise.reject('Unable to local your storage');
             }
-            return Promise.reject('Unable to local your storage');
         };
         LocalStorage.prototype.setNamespace = function (namespace) {
             this.namespace = namespace;
@@ -77,48 +123,12 @@
         return LocalStorage;
     }());
 
-    var t = Date.now();
-    var LogStatus;
-    (function (LogStatus) {
-        LogStatus[LogStatus["error"] = 0] = "error";
-        LogStatus[LogStatus["warn"] = 1] = "warn";
-        LogStatus[LogStatus["info"] = 2] = "info";
-        LogStatus[LogStatus["debug"] = 3] = "debug";
-        LogStatus[LogStatus["none"] = 4] = "none";
-    })(LogStatus || (LogStatus = {}));
-    var logLevel = LogStatus.none;
-    var themes = [
-        'background: #c4161e; color: #fff',
-        'background: #ff8c1c; color: #fff',
-        'background: #ff0080; color: #fff',
-        'background: #44a5ab; color: #fff',
-    ];
-    /**
-     * log
-     * Just shows stuff in as dank as possible.
-     *
-     * @param {String} name
-     * @param {String} message
-     * @param {String} status
-     * @public
-     */
-    function log(name, message, status) {
-        if (status === void 0) { status = LogStatus.debug; }
-        if (status > logLevel) {
-            return;
-        }
-        console.log('[' +
-            ((Date.now() - t) / 1000).toString() +
-            's]' +
-            '%c %c %c h5-kv-storage %c %c %c ' +
-            name +
-            ' ', 'background: #278CEB', 'background:#006db6', 'color: #fff; background: #001c4a;', 'background: #006db6', 'background: #278CEB', themes[status], typeof message !== 'undefined' ? message : '');
-    }
-
     var PostMessageHelper = /** @class */ (function () {
-        function PostMessageHelper(sourceDomain) {
+        function PostMessageHelper(sourceDomain, logLevel) {
             var _this = this;
+            if (logLevel === void 0) { logLevel = LogLevel.none; }
             this.sourceDomain = sourceDomain;
+            setLoglevel(logLevel);
             // We'll just ass-u-me local storage for now
             this.adapter = new LocalStorage();
             void this.adapter.initialize().then(function () {
@@ -149,13 +159,13 @@
                 return;
             }
             if (null !== receivedMessage) {
-                log(this.constructor.name, 'Message received from ' +
+                log(this.constructor.name + ':' + window.location.host, 'Message received from ' +
                     this.sourceDomain +
                     ': ' +
-                    StorageCommand[receivedMessage.command], LogStatus.debug);
+                    StorageCommand[receivedMessage.command], LogLevel.debug);
                 switch (receivedMessage.command) {
                     case StorageCommand.init:
-                        log(this.constructor.name, 'Remote resource initialized', LogStatus.debug);
+                        log(this.constructor.name + ':' + window.location.host, 'Remote resource initialized', LogLevel.debug);
                         source.postMessage({
                             status: 'ok',
                             command: receivedMessage.command,
@@ -229,11 +239,24 @@
                         }
                         break;
                     case StorageCommand.length:
+                        try {
+                            void this.adapter.length().then(function (value) {
+                                source.postMessage({
+                                    status: 'ok',
+                                    command: receivedMessage.command,
+                                    value: value.toString()
+                                });
+                            });
+                        }
+                        catch (e) {
+                            this.sendError(source, receivedMessage.command, e);
+                        }
                         break;
                     case StorageCommand.key:
                         try {
+                            var key = parseInt(receivedMessage.key || '-1');
                             void this.adapter
-                                .key(receivedMessage.length)
+                                .key(key)
                                 .then(function (value) {
                                 source.postMessage({
                                     status: 'ok',

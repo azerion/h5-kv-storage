@@ -89,7 +89,7 @@ var XDomainStorage = /** @class */ (function () {
         }
         return this.sendMessageToIframe({
             command: utils_1.StorageCommand.key,
-            length: index,
+            key: index.toString(),
         });
     };
     XDomainStorage.prototype.length = function () {
@@ -151,11 +151,9 @@ var XDomainStorage = /** @class */ (function () {
                 (0, log_1.log)(_this.constructor.name, 'Message received from ' +
                     _this.xDomainName +
                     ': ' +
-                    utils_1.StorageCommand[receivedMessage.command], log_1.LogStatus.debug);
+                    utils_1.StorageCommand[receivedMessage.command], log_1.LogLevel.debug);
                 switch (receivedMessage.command) {
                     case utils_1.StorageCommand.length:
-                        resolve(receivedMessage.length);
-                        break;
                     case utils_1.StorageCommand.getItem:
                     case utils_1.StorageCommand.key:
                         resolve(receivedMessage.value);
@@ -168,7 +166,7 @@ var XDomainStorage = /** @class */ (function () {
                         resolve(receivedMessage.status);
                         break;
                     default:
-                        reject(receivedMessage.value);
+                        reject('Can not process command');
                         break;
                 }
             };
@@ -176,7 +174,7 @@ var XDomainStorage = /** @class */ (function () {
                 (0, log_1.log)(_this.constructor.name, 'Sending message to ' +
                     _this.xDomainName +
                     ': ' +
-                    utils_1.StorageCommand[message.command], log_1.LogStatus.debug);
+                    utils_1.StorageCommand[message.command], log_1.LogLevel.debug);
                 _this.target.postMessage(message, _this.xDomainName, [
                     messageChannel.port2,
                 ]);

@@ -1,6 +1,6 @@
 import { IStorageAdapter } from './'
 import { IStorageMessage, StorageCommand } from '../utils'
-import { log, LogStatus } from '../utils/log'
+import { log, LogLevel } from '../utils/log'
 
 export class XDomainStorage implements IStorageAdapter {
   public storageAvailable = false
@@ -111,7 +111,7 @@ export class XDomainStorage implements IStorageAdapter {
 
     return this.sendMessageToIframe({
       command: StorageCommand.key,
-      length: index,
+      key: index.toString(),
     }) as Promise<string | null>
   }
 
@@ -193,13 +193,11 @@ export class XDomainStorage implements IStorageAdapter {
               this.xDomainName +
               ': ' +
               StorageCommand[receivedMessage.command],
-            LogStatus.debug
+            LogLevel.debug
           )
 
           switch (receivedMessage.command) {
             case StorageCommand.length:
-              resolve(receivedMessage.length)
-              break
             case StorageCommand.getItem:
             case StorageCommand.key:
               resolve(receivedMessage.value)
@@ -212,7 +210,7 @@ export class XDomainStorage implements IStorageAdapter {
               resolve(receivedMessage.status)
               break
             default:
-              reject(receivedMessage.value)
+              reject('Can not process command');
               break
           }
         }
@@ -224,7 +222,7 @@ export class XDomainStorage implements IStorageAdapter {
               this.xDomainName +
               ': ' +
               StorageCommand[message.command],
-            LogStatus.debug
+            LogLevel.debug
           )
           this.target.postMessage(message, this.xDomainName, [
             messageChannel.port2,

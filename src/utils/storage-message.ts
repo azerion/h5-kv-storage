@@ -5,5 +5,4 @@ export interface IStorageMessage {
   status?: string
   key?: string
   value?: string
-  length?: number
 }

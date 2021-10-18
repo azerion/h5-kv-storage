@@ -1,6 +1,6 @@
-import { StorageCommand, IStorageMessage } from './'
-import { IStorageAdapter, LocalStorage } from '../adapters'
-import { log, LogStatus } from '../utils/log'
+import {IStorageMessage, StorageCommand} from './';
+import {IStorageAdapter, LocalStorage} from '../adapters';
+import {log, LogLevel, setLoglevel} from '../utils/log';
 
 export class PostMessageHelper {
   // private namespace: string;
@@ -9,9 +9,9 @@ export class PostMessageHelper {
 
   private sourceDomain: string
 
-  constructor(sourceDomain: string) {
+  constructor(sourceDomain: string, logLevel: LogLevel = LogLevel.none) {
     this.sourceDomain = sourceDomain
-
+    setLoglevel(logLevel);
     // We'll just ass-u-me local storage for now
     this.adapter = new LocalStorage()
     void this.adapter.initialize().then(() => {
@@ -54,20 +54,20 @@ export class PostMessageHelper {
 
     if (null !== receivedMessage) {
       log(
-        this.constructor.name,
+        this.constructor.name + ':' + window.location.host,
         'Message received from ' +
           this.sourceDomain +
           ': ' +
           StorageCommand[receivedMessage.command],
-        LogStatus.debug
+        LogLevel.debug
       )
 
       switch (receivedMessage.command) {
         case StorageCommand.init:
           log(
-            this.constructor.name,
+            this.constructor.name + ':' + window.location.host,
             'Remote resource initialized',
-            LogStatus.debug
+            LogLevel.debug
           )
 
           source.postMessage(<IStorageMessage>{
@@ -144,20 +144,23 @@ export class PostMessageHelper {
           break
         case StorageCommand.length:
           try {
-            // source.postMessage(<IStorageMessage>{
-            //     status: 'ok',
-            //     command: receivedMessage.command,
-            //     value: this.adapter.length,
-            //     length: this.adapter.length
-            // });
+            void this.adapter.length().then((value: number) => {
+              source.postMessage(<IStorageMessage>{
+                status: 'ok',
+                command: receivedMessage.command,
+                value: value.toString()
+              });
+            });
           } catch (e: any) {
             this.sendError(source, receivedMessage.command, e)
           }
           break
         case StorageCommand.key:
           try {
+            let key: number = parseInt(receivedMessage.key || '-1');
+
             void this.adapter
-              .key(receivedMessage.length as number)
+              .key(key)
               .then((value: string | null) => {
                 source.postMessage(<IStorageMessage>{
                   status: 'ok',

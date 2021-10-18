@@ -1,11 +1,11 @@
-export declare enum LogStatus {
+export declare enum LogLevel {
     error = 0,
     warn = 1,
     info = 2,
     debug = 3,
     none = 4
 }
-export declare function setLoglevel(level: LogStatus): void;
+export declare function setLoglevel(level: LogLevel): void;
 /**
  * log
  * Just shows stuff in as dank as possible.
@@ -15,4 +15,4 @@ export declare function setLoglevel(level: LogStatus): void;
  * @param {String} status
  * @public
  */
-export declare function log(name: string, message: string, status?: LogStatus): void;
+export declare function log(name: string, message: string, status?: LogLevel): void;

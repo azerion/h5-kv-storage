@@ -1,10 +1,10 @@
 import { IStorageAdapter } from './adapters';
-import { LogStatus } from './utils/log';
+import { LogLevel } from './utils/log';
 export * from './adapters';
 export declare class KvStorage {
     private storageAdapter?;
     private namespace;
-    constructor(level?: LogStatus);
+    constructor(level?: LogLevel);
     setNamespace(namedSpace: string): void | Promise<void>;
     setAdapter(storageAdapter: IStorageAdapter): Promise<string>;
     length(): Promise<number>;

@@ -7,20 +7,18 @@
     <script src="/dist/h5-kv-storage.umd.js"></script>
 </head>
 <body>
-    <iframe id="xdomain-storage" src="http://test.poki.nl/example/xdomain.html"></iframe>
-
     <script type="application/javascript">
         console.log('Hello from: ', window.location.host);
 
-        var xdomain = new kvstorage.XDomainStorage('http://test.poki.nl', '#xdomain-storage');
-        var cookie = new kvstorage.CookieStorage();
-        var local = new kvstorage.LocalStorage();
-        var transfer = new kvstorage.TransferStorage(xdomain, local);
+        var xdomain = new kvstorage.XDomainStorage('http://test.agame.com', "http://test.agame.com/example/xdomain.html");
+        // var cookie = new kvstorage.CookieStorage();
+        // var local = new kvstorage.LocalStorage();
+        // var transfer = new kvstorage.TransferStorage(xdomain, local);
         var storage = new kvstorage.KvStorage(3);
 
-        storage.setAdapter(transfer)
-            // .then(() => storage.setItem('foo', 'bar'))
-            // .then((status) => console.log('Status for setting on target domain:', status))
+        storage.setAdapter(xdomain)
+            .then(() => storage.setItem('foo', 'bar'))
+            .then((status) => console.log('Status for setting on target domain:', status))
             .then(() => storage.getItem('foo'))
             .then((value) => console.log('Fetching foo from target domain:', value))
             .then(() => storage.length())

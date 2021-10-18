@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocalStorage = void 0;
+var log_1 = require("../utils/log");
 var LocalStorage = /** @class */ (function () {
     function LocalStorage() {
         this.storageAvailable = false;
@@ -12,13 +13,18 @@ var LocalStorage = /** @class */ (function () {
                 localStorage.setItem('kv-storage-test', 'true');
                 localStorage.removeItem('kv-storage-test');
                 this.storageAvailable = true;
+                (0, log_1.log)(this.constructor.name, 'Initialized', log_1.LogLevel.debug);
                 return Promise.resolve('ok');
+            }
+            else {
+                (0, log_1.log)(this.constructor.name, 'localStorage not available', log_1.LogLevel.warn);
+                return Promise.reject('Unable to local your storage');
             }
         }
         catch (e) {
+            (0, log_1.log)(this.constructor.name, 'localStorage crashed during initialisation', log_1.LogLevel.warn);
             return Promise.reject('Unable to local your storage');
         }
-        return Promise.reject('Unable to local your storage');
     };
     LocalStorage.prototype.setNamespace = function (namespace) {
         this.namespace = namespace;

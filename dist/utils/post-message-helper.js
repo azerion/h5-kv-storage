@@ -5,9 +5,11 @@ var _1 = require("./");
 var adapters_1 = require("../adapters");
 var log_1 = require("../utils/log");
 var PostMessageHelper = /** @class */ (function () {
-    function PostMessageHelper(sourceDomain) {
+    function PostMessageHelper(sourceDomain, logLevel) {
         var _this = this;
+        if (logLevel === void 0) { logLevel = log_1.LogLevel.none; }
         this.sourceDomain = sourceDomain;
+        (0, log_1.setLoglevel)(logLevel);
         // We'll just ass-u-me local storage for now
         this.adapter = new adapters_1.LocalStorage();
         void this.adapter.initialize().then(function () {
@@ -38,13 +40,13 @@ var PostMessageHelper = /** @class */ (function () {
             return;
         }
         if (null !== receivedMessage) {
-            (0, log_1.log)(this.constructor.name, 'Message received from ' +
+            (0, log_1.log)(this.constructor.name + ':' + window.location.host, 'Message received from ' +
                 this.sourceDomain +
                 ': ' +
-                _1.StorageCommand[receivedMessage.command], log_1.LogStatus.debug);
+                _1.StorageCommand[receivedMessage.command], log_1.LogLevel.debug);
             switch (receivedMessage.command) {
                 case _1.StorageCommand.init:
-                    (0, log_1.log)(this.constructor.name, 'Remote resource initialized', log_1.LogStatus.debug);
+                    (0, log_1.log)(this.constructor.name + ':' + window.location.host, 'Remote resource initialized', log_1.LogLevel.debug);
                     source.postMessage({
                         status: 'ok',
                         command: receivedMessage.command,
@@ -119,12 +121,13 @@ var PostMessageHelper = /** @class */ (function () {
                     break;
                 case _1.StorageCommand.length:
                     try {
-                        // source.postMessage(<IStorageMessage>{
-                        //     status: 'ok',
-                        //     command: receivedMessage.command,
-                        //     value: this.adapter.length,
-                        //     length: this.adapter.length
-                        // });
+                        void this.adapter.length().then(function (value) {
+                            source.postMessage({
+                                status: 'ok',
+                                command: receivedMessage.command,
+                                value: value.toString()
+                            });
+                        });
                     }
                     catch (e) {
                         this.sendError(source, receivedMessage.command, e);
@@ -132,8 +135,9 @@ var PostMessageHelper = /** @class */ (function () {
                     break;
                 case _1.StorageCommand.key:
                     try {
+                        var key = parseInt(receivedMessage.key || '-1');
                         void this.adapter
-                            .key(receivedMessage.length)
+                            .key(key)
                             .then(function (value) {
                             source.postMessage({
                                 status: 'ok',

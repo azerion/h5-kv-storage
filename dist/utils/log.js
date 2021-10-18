@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.log = exports.setLoglevel = exports.LogStatus = void 0;
+exports.log = exports.setLoglevel = exports.LogLevel = void 0;
 var t = Date.now();
-var LogStatus;
-(function (LogStatus) {
-    LogStatus[LogStatus["error"] = 0] = "error";
-    LogStatus[LogStatus["warn"] = 1] = "warn";
-    LogStatus[LogStatus["info"] = 2] = "info";
-    LogStatus[LogStatus["debug"] = 3] = "debug";
-    LogStatus[LogStatus["none"] = 4] = "none";
-})(LogStatus = exports.LogStatus || (exports.LogStatus = {}));
-var logLevel = LogStatus.none;
+var LogLevel;
+(function (LogLevel) {
+    LogLevel[LogLevel["error"] = 0] = "error";
+    LogLevel[LogLevel["warn"] = 1] = "warn";
+    LogLevel[LogLevel["info"] = 2] = "info";
+    LogLevel[LogLevel["debug"] = 3] = "debug";
+    LogLevel[LogLevel["none"] = 4] = "none";
+})(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
+var logLevel = LogLevel.none;
 function setLoglevel(level) {
     logLevel = level;
 }
@@ -31,8 +31,8 @@ var themes = [
  * @public
  */
 function log(name, message, status) {
-    if (status === void 0) { status = LogStatus.debug; }
-    if (status > logLevel) {
+    if (status === void 0) { status = LogLevel.debug; }
+    if (!(status <= logLevel)) {
         return;
     }
     console.log('[' +

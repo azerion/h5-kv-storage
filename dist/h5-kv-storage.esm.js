@@ -52,15 +52,15 @@ function __generator(thisArg, body) {
 }
 
 var t = Date.now();
-var LogStatus;
-(function (LogStatus) {
-    LogStatus[LogStatus["error"] = 0] = "error";
-    LogStatus[LogStatus["warn"] = 1] = "warn";
-    LogStatus[LogStatus["info"] = 2] = "info";
-    LogStatus[LogStatus["debug"] = 3] = "debug";
-    LogStatus[LogStatus["none"] = 4] = "none";
-})(LogStatus || (LogStatus = {}));
-var logLevel = LogStatus.none;
+var LogLevel;
+(function (LogLevel) {
+    LogLevel[LogLevel["error"] = 0] = "error";
+    LogLevel[LogLevel["warn"] = 1] = "warn";
+    LogLevel[LogLevel["info"] = 2] = "info";
+    LogLevel[LogLevel["debug"] = 3] = "debug";
+    LogLevel[LogLevel["none"] = 4] = "none";
+})(LogLevel || (LogLevel = {}));
+var logLevel = LogLevel.none;
 function setLoglevel(level) {
     logLevel = level;
 }
@@ -80,8 +80,8 @@ var themes = [
  * @public
  */
 function log(name, message, status) {
-    if (status === void 0) { status = LogStatus.debug; }
-    if (status > logLevel) {
+    if (status === void 0) { status = LogLevel.debug; }
+    if (!(status <= logLevel)) {
         return;
     }
     console.log('[' +
@@ -103,13 +103,18 @@ var LocalStorage = /** @class */ (function () {
                 localStorage.setItem('kv-storage-test', 'true');
                 localStorage.removeItem('kv-storage-test');
                 this.storageAvailable = true;
+                log(this.constructor.name, 'Initialized', LogLevel.debug);
                 return Promise.resolve('ok');
+            }
+            else {
+                log(this.constructor.name, 'localStorage not available', LogLevel.warn);
+                return Promise.reject('Unable to local your storage');
             }
         }
         catch (e) {
+            log(this.constructor.name, 'localStorage crashed during initialisation', LogLevel.warn);
             return Promise.reject('Unable to local your storage');
         }
-        return Promise.reject('Unable to local your storage');
     };
     LocalStorage.prototype.setNamespace = function (namespace) {
         this.namespace = namespace;
@@ -414,7 +419,7 @@ var XDomainStorage = /** @class */ (function () {
         }
         return this.sendMessageToIframe({
             command: StorageCommand.key,
-            length: index,
+            key: index.toString(),
         });
     };
     XDomainStorage.prototype.length = function () {
@@ -476,11 +481,9 @@ var XDomainStorage = /** @class */ (function () {
                 log(_this.constructor.name, 'Message received from ' +
                     _this.xDomainName +
                     ': ' +
-                    StorageCommand[receivedMessage.command], LogStatus.debug);
+                    StorageCommand[receivedMessage.command], LogLevel.debug);
                 switch (receivedMessage.command) {
                     case StorageCommand.length:
-                        resolve(receivedMessage.length);
-                        break;
                     case StorageCommand.getItem:
                     case StorageCommand.key:
                         resolve(receivedMessage.value);
@@ -493,7 +496,7 @@ var XDomainStorage = /** @class */ (function () {
                         resolve(receivedMessage.status);
                         break;
                     default:
-                        reject(receivedMessage.value);
+                        reject('Can not process command');
                         break;
                 }
             };
@@ -501,7 +504,7 @@ var XDomainStorage = /** @class */ (function () {
                 log(_this.constructor.name, 'Sending message to ' +
                     _this.xDomainName +
                     ': ' +
-                    StorageCommand[message.command], LogStatus.debug);
+                    StorageCommand[message.command], LogLevel.debug);
                 _this.target.postMessage(message, _this.xDomainName, [
                     messageChannel.port2,
                 ]);
@@ -513,7 +516,7 @@ var XDomainStorage = /** @class */ (function () {
 
 var KvStorage = /** @class */ (function () {
     function KvStorage(level) {
-        if (level === void 0) { level = LogStatus.none; }
+        if (level === void 0) { level = LogLevel.none; }
         this.namespace = '';
         setLoglevel(level);
     }
@@ -525,7 +528,7 @@ var KvStorage = /** @class */ (function () {
     KvStorage.prototype.setAdapter = function (storageAdapter) {
         var _this = this;
         this.storageAdapter = storageAdapter;
-        log(this.constructor.name, 'addding and initializing adapter: ' + storageAdapter.constructor.name, LogStatus.info);
+        log(this.constructor.name, 'addding and initializing adapter: ' + storageAdapter.constructor.name, LogLevel.info);
         return this.storageAdapter.initialize().then(function (status) {
             var _a;
             if (status !== 'ok') {
@@ -540,35 +543,35 @@ var KvStorage = /** @class */ (function () {
         if (!this.storageAdapter) {
             return Promise.reject('No adapter configured!');
         }
-        log(this.constructor.name, 'Calling length() on storage adapter', LogStatus.debug);
+        log(this.constructor.name, 'Calling length() on storage adapter', LogLevel.debug);
         return this.storageAdapter.length();
     };
     KvStorage.prototype.key = function (n) {
         if (!this.storageAdapter) {
             return Promise.reject('No adapter configured!');
         }
-        log(this.constructor.name, 'Calling key() on storage adapter', LogStatus.debug);
+        log(this.constructor.name, 'Calling key() on storage adapter', LogLevel.debug);
         return this.storageAdapter.key(n);
     };
     KvStorage.prototype.getItem = function (key) {
         if (!this.storageAdapter) {
             return Promise.reject('No adapter configured!');
         }
-        log(this.constructor.name, 'Calling getItem() on storage adapter', LogStatus.debug);
+        log(this.constructor.name, 'Calling getItem() on storage adapter', LogLevel.debug);
         return this.storageAdapter.getItem(key);
     };
     KvStorage.prototype.setItem = function (key, value) {
         if (!this.storageAdapter) {
             return Promise.reject('No adapter configured!');
         }
-        log(this.constructor.name, 'Calling setItem() on storage adapter', LogStatus.debug);
+        log(this.constructor.name, 'Calling setItem() on storage adapter', LogLevel.debug);
         return this.storageAdapter.setItem(key, value);
     };
     KvStorage.prototype.removeItem = function (key) {
         if (!this.storageAdapter) {
             return Promise.reject('No adapter configured!');
         }
-        log(this.constructor.name, 'Calling removeItem() on storage adapter', LogStatus.debug);
+        log(this.constructor.name, 'Calling removeItem() on storage adapter', LogLevel.debug);
         return this.storageAdapter.removeItem(key);
     };
     KvStorage.prototype.clear = function () {
@@ -577,7 +580,7 @@ var KvStorage = /** @class */ (function () {
                 if (!this.storageAdapter) {
                     return [2 /*return*/, Promise.reject('No adapter configured!')];
                 }
-                log(this.constructor.name, 'Calling clear() on storage adapter', LogStatus.debug);
+                log(this.constructor.name, 'Calling clear() on storage adapter', LogLevel.debug);
                 return [2 /*return*/, this.storageAdapter.clear()];
             });
         });

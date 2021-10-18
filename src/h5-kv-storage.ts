@@ -1,5 +1,5 @@
 import { IStorageAdapter } from './adapters'
-import { log, LogStatus, setLoglevel } from './utils/log'
+import { log, LogLevel, setLoglevel } from './utils/log'
 
 export * from './adapters'
 
@@ -8,7 +8,7 @@ export class KvStorage {
 
   private namespace = ''
 
-  constructor(level: LogStatus = LogStatus.none) {
+  constructor(level: LogLevel = LogLevel.none) {
     setLoglevel(level)
   }
 
@@ -24,7 +24,7 @@ export class KvStorage {
     log(
       this.constructor.name,
       'addding and initializing adapter: ' + storageAdapter.constructor.name,
-      LogStatus.info
+      LogLevel.info
     )
     return this.storageAdapter.initialize().then((status) => {
       if (status !== 'ok') {
@@ -45,7 +45,7 @@ export class KvStorage {
     log(
       this.constructor.name,
       'Calling length() on storage adapter',
-      LogStatus.debug
+      LogLevel.debug
     )
     return this.storageAdapter.length()
   }
@@ -58,7 +58,7 @@ export class KvStorage {
     log(
       this.constructor.name,
       'Calling key() on storage adapter',
-      LogStatus.debug
+      LogLevel.debug
     )
     return this.storageAdapter.key(n)
   }
@@ -71,7 +71,7 @@ export class KvStorage {
     log(
       this.constructor.name,
       'Calling getItem() on storage adapter',
-      LogStatus.debug
+      LogLevel.debug
     )
     return this.storageAdapter.getItem(key)
   }
@@ -84,7 +84,7 @@ export class KvStorage {
     log(
       this.constructor.name,
       'Calling setItem() on storage adapter',
-      LogStatus.debug
+      LogLevel.debug
     )
     return this.storageAdapter.setItem(key, value)
   }
@@ -97,7 +97,7 @@ export class KvStorage {
     log(
       this.constructor.name,
       'Calling removeItem() on storage adapter',
-      LogStatus.debug
+      LogLevel.debug
     )
     return this.storageAdapter.removeItem(key)
   }
@@ -110,7 +110,7 @@ export class KvStorage {
     log(
       this.constructor.name,
       'Calling clear() on storage adapter',
-      LogStatus.debug
+      LogLevel.debug
     )
     return this.storageAdapter.clear()
   }
