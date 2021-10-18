@@ -1,89 +1,117 @@
-import {IStorageAdapter} from './adapters';
-import {log, LogStatus, setLoglevel} from './utils/log';
+import { IStorageAdapter } from './adapters'
+import { log, LogStatus, setLoglevel } from './utils/log'
 
 export * from './adapters'
 
 export class KvStorage {
-    private storageAdapter?: IStorageAdapter;
+  private storageAdapter?: IStorageAdapter
 
-    private namespace: string = '';
+  private namespace = ''
 
-    constructor(level: LogStatus = LogStatus.none) {
-        setLoglevel(level);
+  constructor(level: LogStatus = LogStatus.none) {
+    setLoglevel(level)
+  }
+
+  public setNamespace(namedSpace: string): void | Promise<void> {
+    this.namespace = namedSpace
+
+    this.storageAdapter?.setNamespace(this.namespace)
+  }
+
+  public setAdapter(storageAdapter: IStorageAdapter): Promise<string> {
+    this.storageAdapter = storageAdapter
+
+    log(
+      this.constructor.name,
+      'addding and initializing adapter: ' + storageAdapter.constructor.name,
+      LogStatus.info
+    )
+    return this.storageAdapter.initialize().then((status) => {
+      if (status !== 'ok') {
+        this.storageAdapter = undefined
+        return Promise.reject('Unable to initiliaze adapter!')
+      }
+
+      this.storageAdapter?.setNamespace(this.namespace)
+      return 'ok'
+    })
+  }
+
+  public length(): Promise<number> {
+    if (!this.storageAdapter) {
+      return Promise.reject('No adapter configured!')
     }
 
-    public setNamespace(namedSpace: string): void | Promise<void> {
-        this.namespace = namedSpace;
+    log(
+      this.constructor.name,
+      'Calling length() on storage adapter',
+      LogStatus.debug
+    )
+    return this.storageAdapter.length()
+  }
 
-        this.storageAdapter?.setNamespace(this.namespace);
+  public key(n: number): Promise<string | null> {
+    if (!this.storageAdapter) {
+      return Promise.reject('No adapter configured!')
     }
 
-    public setAdapter(storageAdapter: IStorageAdapter): Promise<string> {
-        this.storageAdapter = storageAdapter;
+    log(
+      this.constructor.name,
+      'Calling key() on storage adapter',
+      LogStatus.debug
+    )
+    return this.storageAdapter.key(n)
+  }
 
-        log(this.constructor.name, 'addding and initializing adapter: ' + storageAdapter.constructor.name, LogStatus.info);
-        return this.storageAdapter.initialize().then((status) => {
-            if (status !== 'ok') {
-                this.storageAdapter = undefined;
-                return Promise.reject('Unable to initiliaze adapter!');
-            }
-
-            this.storageAdapter?.setNamespace(this.namespace);
-            return 'ok'
-        });
+  public getItem(key: string): Promise<any> {
+    if (!this.storageAdapter) {
+      return Promise.reject('No adapter configured!')
     }
 
-    public length(): Promise<number> {
-        if (!this.storageAdapter) {
-            return Promise.reject('No adapter configured!');
-        }
+    log(
+      this.constructor.name,
+      'Calling getItem() on storage adapter',
+      LogStatus.debug
+    )
+    return this.storageAdapter.getItem(key)
+  }
 
-        log(this.constructor.name, 'Calling length() on storage adapter', LogStatus.debug);
-        return this.storageAdapter.length();
+  public setItem(key: string, value: string): void | Promise<void> {
+    if (!this.storageAdapter) {
+      return Promise.reject('No adapter configured!')
     }
 
-    public key(n: number): Promise<string | null> {
-        if (!this.storageAdapter) {
-            return Promise.reject('No adapter configured!');
-        }
+    log(
+      this.constructor.name,
+      'Calling setItem() on storage adapter',
+      LogStatus.debug
+    )
+    return this.storageAdapter.setItem(key, value)
+  }
 
-        log(this.constructor.name, 'Calling key() on storage adapter', LogStatus.debug);
-        return this.storageAdapter.key(n);
+  public removeItem(key: string): void | Promise<void> {
+    if (!this.storageAdapter) {
+      return Promise.reject('No adapter configured!')
     }
 
-    public getItem(key: string): Promise<any> {
-        if (!this.storageAdapter) {
-            return Promise.reject('No adapter configured!');
-        }
+    log(
+      this.constructor.name,
+      'Calling removeItem() on storage adapter',
+      LogStatus.debug
+    )
+    return this.storageAdapter.removeItem(key)
+  }
 
-        log(this.constructor.name, 'Calling getItem() on storage adapter', LogStatus.debug);
-        return this.storageAdapter.getItem(key);
+  public async clear(): Promise<void> {
+    if (!this.storageAdapter) {
+      return Promise.reject('No adapter configured!')
     }
 
-    public setItem(key: string, value: string): void | Promise<void> {
-        if (!this.storageAdapter) {
-            return Promise.reject('No adapter configured!');
-        }
-
-        log(this.constructor.name, 'Calling setItem() on storage adapter', LogStatus.debug);
-        return this.storageAdapter.setItem(key, value);
-    }
-
-    public removeItem(key: string): void | Promise<void> {
-        if (!this.storageAdapter) {
-            return Promise.reject('No adapter configured!');
-        }
-
-        log(this.constructor.name, 'Calling removeItem() on storage adapter', LogStatus.debug);
-        return this.storageAdapter.removeItem(key);
-    }
-
-    public async clear(): Promise<void> {
-        if (!this.storageAdapter) {
-            return Promise.reject('No adapter configured!');
-        }
-
-        log(this.constructor.name, 'Calling clear() on storage adapter', LogStatus.debug);
-        return this.storageAdapter.clear();
-    }
+    log(
+      this.constructor.name,
+      'Calling clear() on storage adapter',
+      LogStatus.debug
+    )
+    return this.storageAdapter.clear()
+  }
 }

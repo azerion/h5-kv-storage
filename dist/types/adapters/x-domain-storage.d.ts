@@ -1,7 +1,11 @@
 import { IStorageAdapter } from './';
-export declare class LocalStorage implements IStorageAdapter {
+export declare class XDomainStorage implements IStorageAdapter {
     storageAvailable: boolean;
-    namespace: string;
+    private xDomainName;
+    private target;
+    private iframe;
+    constructor(xDomainName: string, iframeIdOrUrl: string);
+    private createIFrame;
     initialize(): Promise<string>;
     setNamespace(namespace: string): void;
     clear(): Promise<void>;
@@ -10,4 +14,5 @@ export declare class LocalStorage implements IStorageAdapter {
     length(): Promise<number>;
     removeItem(key: string): Promise<void>;
     setItem(key: string, value: string): Promise<void>;
+    private sendMessageToIframe;
 }

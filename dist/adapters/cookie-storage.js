@@ -6,33 +6,41 @@ var CookieStorage = /** @class */ (function () {
         this.reg = new RegExp('', 'g');
         this.namespace = '';
         this.storageAvailable = false;
-        this.setNamespace('kvs');
+        void this.setNamespace('kvs');
     }
     CookieStorage.prototype.length = function () {
-        return Promise.resolve((this.getNameSpaceMatches() !== null) ? this.getNameSpaceMatches().length : 0);
+        return Promise.resolve(this.getNameSpaceMatches() !== null
+            ? this.getNameSpaceMatches().length
+            : 0);
     };
     CookieStorage.prototype.key = function (n) {
         var key = this.getNameSpaceMatches()[n];
         var result = this.getCookiesForNameSpace()[key] || null;
-        return Promise.resolve(result);
+        return Promise.resolve(result === null || result === void 0 ? void 0 : result.toString());
     };
     CookieStorage.prototype.getItem = function (key) {
         var result = this.getCookiesForNameSpace()[key] || null;
-        return Promise.resolve(result);
+        return Promise.resolve(result === null || result === void 0 ? void 0 : result.toString());
     };
     CookieStorage.prototype.setItem = function (key, value) {
-        document.cookie = encodeURIComponent(this.namespace + key) + '=' + encodeURIComponent(value) + '; expires=Tue, 19 Jan 2038 03:14:07 GMT; path=/';
+        document.cookie =
+            encodeURIComponent(this.namespace + key) +
+                '=' +
+                encodeURIComponent(value) +
+                '; expires=Tue, 19 Jan 2038 03:14:07 GMT; path=/';
         return Promise.resolve();
     };
     CookieStorage.prototype.removeItem = function (key) {
-        document.cookie = encodeURIComponent(this.namespace + key) + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        document.cookie =
+            encodeURIComponent(this.namespace + key) +
+                '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
         return Promise.resolve();
     };
     CookieStorage.prototype.clear = function () {
         var cookies = this.getCookiesForNameSpace();
         for (var key in cookies) {
-            if (cookies.hasOwnProperty(key)) {
-                this.removeItem(key);
+            if (Object.prototype.hasOwnProperty.call(cookies, key)) {
+                void this.removeItem(key);
             }
         }
         return Promise.resolve();
@@ -48,7 +56,7 @@ var CookieStorage = /** @class */ (function () {
         var _this = this;
         var cookies = decodeURIComponent(document.cookie).split('; ');
         return cookies.filter(function (val) {
-            var temp = val.match(_this.reg) || [];
+            var temp = _this.reg.exec(val) || [];
             return temp.length > 0 || false;
         });
     };

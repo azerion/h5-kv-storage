@@ -15,7 +15,9 @@ var LocalStorage = /** @class */ (function () {
                 return Promise.resolve('ok');
             }
         }
-        catch (e) { }
+        catch (e) {
+            return Promise.reject('Unable to local your storage');
+        }
         return Promise.reject('Unable to local your storage');
     };
     LocalStorage.prototype.setNamespace = function (namespace) {
@@ -26,7 +28,7 @@ var LocalStorage = /** @class */ (function () {
             return Promise.resolve(localStorage.clear());
         }
         else {
-            return Promise.reject("LocalStorage not available");
+            return Promise.reject('LocalStorage not available');
         }
     };
     LocalStorage.prototype.getItem = function (key) {
@@ -34,7 +36,7 @@ var LocalStorage = /** @class */ (function () {
             return Promise.resolve(localStorage.getItem(this.namespace + key));
         }
         else {
-            return Promise.reject("LocalStorage not available");
+            return Promise.reject('LocalStorage not available');
         }
     };
     LocalStorage.prototype.key = function (index) {
@@ -42,7 +44,7 @@ var LocalStorage = /** @class */ (function () {
             return Promise.resolve(localStorage.key(index));
         }
         else {
-            return Promise.reject("LocalStorage not available");
+            return Promise.reject('LocalStorage not available');
         }
     };
     LocalStorage.prototype.length = function () {
@@ -50,7 +52,7 @@ var LocalStorage = /** @class */ (function () {
             return Promise.resolve(localStorage.length);
         }
         else {
-            return Promise.reject("LocalStorage not available");
+            return Promise.reject('LocalStorage not available');
         }
     };
     LocalStorage.prototype.removeItem = function (key) {
@@ -58,7 +60,7 @@ var LocalStorage = /** @class */ (function () {
             return Promise.resolve(localStorage.removeItem(this.namespace + key));
         }
         else {
-            return Promise.reject("LocalStorage not available");
+            return Promise.reject('LocalStorage not available');
         }
     };
     LocalStorage.prototype.setItem = function (key, value) {
@@ -66,7 +68,7 @@ var LocalStorage = /** @class */ (function () {
             return Promise.resolve(localStorage.setItem(this.namespace + key, value));
         }
         else {
-            return Promise.reject("LocalStorage not available");
+            return Promise.reject('LocalStorage not available');
         }
     };
     return LocalStorage;

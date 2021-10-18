@@ -10,7 +10,7 @@ var PostMessageHelper = /** @class */ (function () {
         this.sourceDomain = sourceDomain;
         // We'll just ass-u-me local storage for now
         this.adapter = new adapters_1.LocalStorage();
-        this.adapter.initialize().then(function () {
+        void this.adapter.initialize().then(function () {
             window.addEventListener('message', _this.messageHandler.bind(_this));
         });
     }
@@ -21,68 +21,76 @@ var PostMessageHelper = /** @class */ (function () {
         source.postMessage({
             status: 'error',
             command: command,
-            value: message
+            value: message,
         });
     };
-    ;
     PostMessageHelper.prototype.messageHandler = function (event) {
         if (event.origin.indexOf(this.sourceDomain) === -1) {
             // Received message is not from the domain we'd like to get data from. Skipping....
             return;
         }
-        var receivedMessage = (event.data && event.data.hasOwnProperty('command')) ? event.data : null;
+        var receivedMessage = event.data && Object.prototype.hasOwnProperty.call(event.data, 'command')
+            ? event.data
+            : null;
         var source = event.ports[0];
         if (typeof source === 'undefined' || !source) {
             // No source to return too, skipping
             return;
         }
         if (null !== receivedMessage) {
-            (0, log_1.log)(this.constructor.name, 'Message received from ' + this.sourceDomain + ': ' + _1.StorageCommand[receivedMessage.command], log_1.LogStatus.debug);
+            (0, log_1.log)(this.constructor.name, 'Message received from ' +
+                this.sourceDomain +
+                ': ' +
+                _1.StorageCommand[receivedMessage.command], log_1.LogStatus.debug);
             switch (receivedMessage.command) {
                 case _1.StorageCommand.init:
                     (0, log_1.log)(this.constructor.name, 'Remote resource initialized', log_1.LogStatus.debug);
                     source.postMessage({
                         status: 'ok',
-                        command: receivedMessage.command
+                        command: receivedMessage.command,
                     });
                     break;
                 case _1.StorageCommand.getItem:
                     try {
-                        this.adapter.getItem(receivedMessage.key).then(function (item) {
+                        void this.adapter
+                            .getItem(receivedMessage.key)
+                            .then(function (item) {
                             source.postMessage({
                                 status: 'ok',
                                 command: receivedMessage.command,
-                                value: item
+                                value: item,
                             });
                         });
                     }
                     catch (e) {
-                        this.sendError(source, receivedMessage.command, e.message);
+                        this.sendError(source, receivedMessage.command, e);
                     }
                     break;
                 case _1.StorageCommand.setItem:
                     try {
-                        this.adapter.setItem(receivedMessage.key, receivedMessage.value);
+                        void this.adapter.setItem(receivedMessage.key, receivedMessage.value);
                         source.postMessage({
                             status: 'ok',
-                            command: receivedMessage.command
+                            command: receivedMessage.command,
                         });
                     }
                     catch (e) {
-                        this.sendError(source, receivedMessage.command, e.message);
+                        this.sendError(source, receivedMessage.command, e);
                     }
                     break;
                 case _1.StorageCommand.removeItem:
                     try {
-                        this.adapter.removeItem(receivedMessage.key).then(function () {
+                        void this.adapter
+                            .removeItem(receivedMessage.key)
+                            .then(function () {
                             source.postMessage({
                                 status: 'ok',
-                                command: receivedMessage.command
+                                command: receivedMessage.command,
                             });
                         });
                     }
                     catch (e) {
-                        this.sendError(source, receivedMessage.command, e.message);
+                        this.sendError(source, receivedMessage.command, e);
                     }
                     break;
                 case _1.StorageCommand.setNamespace:
@@ -90,23 +98,23 @@ var PostMessageHelper = /** @class */ (function () {
                         this.adapter.setNamespace(receivedMessage.value);
                         source.postMessage({
                             status: 'ok',
-                            command: receivedMessage.command
+                            command: receivedMessage.command,
                         });
                     }
                     catch (e) {
-                        this.sendError(source, receivedMessage.command, e.message);
+                        this.sendError(source, receivedMessage.command, e);
                     }
                     break;
                 case _1.StorageCommand.clear:
                     try {
-                        this.adapter.clear();
+                        void this.adapter.clear();
                         source.postMessage({
                             status: 'ok',
-                            command: receivedMessage.command
+                            command: receivedMessage.command,
                         });
                     }
                     catch (e) {
-                        this.sendError(source, receivedMessage.command, e.message);
+                        this.sendError(source, receivedMessage.command, e);
                     }
                     break;
                 case _1.StorageCommand.length:
@@ -119,21 +127,23 @@ var PostMessageHelper = /** @class */ (function () {
                         // });
                     }
                     catch (e) {
-                        this.sendError(source, receivedMessage.command, e.message);
+                        this.sendError(source, receivedMessage.command, e);
                     }
                     break;
                 case _1.StorageCommand.key:
                     try {
-                        this.adapter.key(receivedMessage.length).then(function (value) {
+                        void this.adapter
+                            .key(receivedMessage.length)
+                            .then(function (value) {
                             source.postMessage({
                                 status: 'ok',
                                 command: receivedMessage.command,
-                                value: value
+                                value: value,
                             });
                         });
                     }
                     catch (e) {
-                        this.sendError(source, receivedMessage.command, e.message);
+                        this.sendError(source, receivedMessage.command, e);
                     }
                     break;
                 default:

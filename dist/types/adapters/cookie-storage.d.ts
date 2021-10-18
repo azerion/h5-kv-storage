@@ -6,7 +6,7 @@ export declare class CookieStorage implements IStorageAdapter {
     length(): Promise<number>;
     key(n: number): Promise<string>;
     getItem(key: string): Promise<string>;
-    setItem(key: string, value: any): Promise<void>;
+    setItem(key: string, value: string): Promise<void>;
     removeItem(key: string): Promise<void>;
     clear(): Promise<void>;
     setNamespace(namespace: string): Promise<void>;

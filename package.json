@@ -19,7 +19,8 @@
     "node": ">=10.0.0"
   },
   "scripts": {
-    "lint": "eslint --ext .js,.ts {src,test}/* --fix && prettier --write \"{src,test}/**/*.{js,ts}\"",
+    "lint": "eslint --ext .ts src/* --fix",
+    "prettier": "prettier --write \"{src}/**/*.{ts}\"",
     "prebuild": "rimraf dist",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs ./src/h5-kv-storage.ts",
     "start": "rollup -c rollup.config.ts -w",

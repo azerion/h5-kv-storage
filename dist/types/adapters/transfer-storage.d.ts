@@ -1,7 +1,10 @@
-import { IStorageAdapter } from './';
-export declare class LocalStorage implements IStorageAdapter {
-    storageAvailable: boolean;
+import { IStorageAdapter } from './storage-adapter';
+export declare class TransferStorage implements IStorageAdapter {
+    private fromAdapter;
+    private toAdapter;
     namespace: string;
+    storageAvailable: boolean;
+    constructor(fromAdapter: IStorageAdapter, toAdapter: IStorageAdapter);
     initialize(): Promise<string>;
     setNamespace(namespace: string): void;
     clear(): Promise<void>;
