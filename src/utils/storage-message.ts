@@ -1,8 +1,8 @@
 import { StorageCommand } from './'
 
 export interface IStorageMessage {
-  command: StorageCommand
-  status?: string
-  key?: string
-  value?: string
+    command: StorageCommand
+    status?: string
+    key?: string
+    value?: string
 }
