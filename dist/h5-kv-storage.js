@@ -63,7 +63,8 @@ var KvStorage = /** @class */ (function () {
     KvStorage.prototype.setAdapter = function (storageAdapter) {
         var _this = this;
         this.storageAdapter = storageAdapter;
-        (0, log_1.log)(this.constructor.name, 'addding and initializing adapter: ' + storageAdapter.constructor.name, log_1.LogLevel.info);
+        (0, log_1.log)(this.constructor.name, 'addding and initializing adapter: ' +
+            storageAdapter.constructor.name, log_1.LogLevel.info);
         return this.storageAdapter.initialize().then(function (status) {
             var _a;
             if (status !== 'ok') {

@@ -34,10 +34,6 @@ var XDomainStorage = /** @class */ (function () {
         if (this.storageAvailable === true) {
             return Promise.reject('Adapter already initialized');
         }
-        if (this.iframe === undefined) {
-            this.storageAvailable = true;
-            return Promise.resolve('ok');
-        }
         if ('complete' === ((_b = (_a = this.iframe) === null || _a === void 0 ? void 0 : _a.contentDocument) === null || _b === void 0 ? void 0 : _b.readyState)) {
             return new Promise(function (resolve) {
                 _this.iframe.addEventListener('load', function () {
@@ -121,22 +117,18 @@ var XDomainStorage = /** @class */ (function () {
     };
     XDomainStorage.prototype.sendMessageToIframe = function (message) {
         var _this = this;
-        var returnedResult;
-        if (message.command === utils_1.StorageCommand.init) {
-            returnedResult = false;
-        }
         var messageChannel = new MessageChannel();
         return new Promise(function (resolve, reject) {
-            if (!_this.storageAvailable && message.command !== utils_1.StorageCommand.init) {
+            if (!_this.storageAvailable &&
+                message.command !== utils_1.StorageCommand.init) {
                 reject('Messaging not enabled!');
             }
+            var timeoutId = 0;
             if (message.command === utils_1.StorageCommand.init) {
                 //small timeout to see if stuff is enabled
-                setTimeout(function () {
-                    if (!returnedResult) {
-                        reject('Unable to get a response in time');
-                    }
-                }, 1000);
+                timeoutId = window.setTimeout(function () {
+                    reject('Unable to get a response in time');
+                }, 3000);
             }
             messageChannel.port1.onmessage = function (event) {
                 var receivedMessage = event.data &&
@@ -158,10 +150,11 @@ var XDomainStorage = /** @class */ (function () {
                     case utils_1.StorageCommand.key:
                         resolve(receivedMessage.value);
                         break;
+                    case utils_1.StorageCommand.init:
+                        clearTimeout(timeoutId);
                     case utils_1.StorageCommand.setItem:
                     case utils_1.StorageCommand.removeItem:
                     case utils_1.StorageCommand.clear:
-                    case utils_1.StorageCommand.init:
                     case utils_1.StorageCommand.setNamespace:
                         resolve(receivedMessage.status);
                         break;
@@ -170,7 +163,8 @@ var XDomainStorage = /** @class */ (function () {
                         break;
                 }
             };
-            if (_this.storageAvailable || message.command === utils_1.StorageCommand.init) {
+            if (_this.storageAvailable ||
+                message.command === utils_1.StorageCommand.init) {
                 (0, log_1.log)(_this.constructor.name, 'Sending message to ' +
                     _this.xDomainName +
                     ': ' +

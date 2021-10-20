@@ -31,7 +31,8 @@ var PostMessageHelper = /** @class */ (function () {
             // Received message is not from the domain we'd like to get data from. Skipping....
             return;
         }
-        var receivedMessage = event.data && Object.prototype.hasOwnProperty.call(event.data, 'command')
+        var receivedMessage = event.data &&
+            Object.prototype.hasOwnProperty.call(event.data, 'command')
             ? event.data
             : null;
         var source = event.ports[0];
@@ -125,7 +126,7 @@ var PostMessageHelper = /** @class */ (function () {
                             source.postMessage({
                                 status: 'ok',
                                 command: receivedMessage.command,
-                                value: value.toString()
+                                value: value.toString(),
                             });
                         });
                     }

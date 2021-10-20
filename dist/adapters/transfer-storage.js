@@ -46,7 +46,9 @@ var TransferStorage = /** @class */ (function () {
     }
     TransferStorage.prototype.initialize = function () {
         var _this = this;
-        return this.fromAdapter.initialize().then(function () { return _this.toAdapter.initialize(); });
+        return this.fromAdapter
+            .initialize()
+            .then(function () { return _this.toAdapter.initialize(); });
     };
     TransferStorage.prototype.setNamespace = function (namespace) {
         this.namespace = namespace;

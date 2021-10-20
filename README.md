@@ -1,25 +1,30 @@
 h5-kv-storage
 ====================
-A cross platform pluggable storage plugin for Phaser.
+A cross platform asyncronous key value storage library that allow you to switch the Storage 
+adapter while keeping the same API in your game/application
+
 Key features:
 - Cross browser support
-- Cookie Fallback
-- Support for iframes with helper script
+- Fully asynchronous
+- Built-in adapters for 
+- Support for storing data across domains
 - Support for custom storage adapters
+- Support migration of data between Adapters
+- Allows setting of different log levels for easy debugging
 
 Getting Started
 ===============
 First you want to get a fresh copy of the plugin. You can get it from this repo or from npm, ain't that handy.
 ```
-npm install @azerion/phaser-super-storage --save-dev
+npm install @azerion/h5-kv-storage --save-dev
 ```
-Next up you'd want to add it to your list of js sources you load into your game
-```html
-<script src="path/to/phaser-super-storage.min.js"></script>
-```
-After adding the script to the page you can activate it by enabling the plugin:
+Next up you'd want to import it where you want to use it :O
+
 ```javascript
-game.add.plugin(PhaserSuperStorage.StoragePlugin);
+import { KvStorage, LogLevel, LocalStorage } from 'h5-kv-storage'
+
+const storage = new KvStorage(LogLevel.debug);
+storage.addAdapter(new LocalStorage());
 ```
 Usage
 =====

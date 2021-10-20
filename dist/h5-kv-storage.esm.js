@@ -254,7 +254,9 @@ var TransferStorage = /** @class */ (function () {
     }
     TransferStorage.prototype.initialize = function () {
         var _this = this;
-        return this.fromAdapter.initialize().then(function () { return _this.toAdapter.initialize(); });
+        return this.fromAdapter
+            .initialize()
+            .then(function () { return _this.toAdapter.initialize(); });
     };
     TransferStorage.prototype.setNamespace = function (namespace) {
         this.namespace = namespace;
@@ -364,10 +366,6 @@ var XDomainStorage = /** @class */ (function () {
         if (this.storageAvailable === true) {
             return Promise.reject('Adapter already initialized');
         }
-        if (this.iframe === undefined) {
-            this.storageAvailable = true;
-            return Promise.resolve('ok');
-        }
         if ('complete' === ((_b = (_a = this.iframe) === null || _a === void 0 ? void 0 : _a.contentDocument) === null || _b === void 0 ? void 0 : _b.readyState)) {
             return new Promise(function (resolve) {
                 _this.iframe.addEventListener('load', function () {
@@ -451,22 +449,18 @@ var XDomainStorage = /** @class */ (function () {
     };
     XDomainStorage.prototype.sendMessageToIframe = function (message) {
         var _this = this;
-        var returnedResult;
-        if (message.command === StorageCommand.init) {
-            returnedResult = false;
-        }
         var messageChannel = new MessageChannel();
         return new Promise(function (resolve, reject) {
-            if (!_this.storageAvailable && message.command !== StorageCommand.init) {
+            if (!_this.storageAvailable &&
+                message.command !== StorageCommand.init) {
                 reject('Messaging not enabled!');
             }
+            var timeoutId = 0;
             if (message.command === StorageCommand.init) {
                 //small timeout to see if stuff is enabled
-                setTimeout(function () {
-                    if (!returnedResult) {
-                        reject('Unable to get a response in time');
-                    }
-                }, 1000);
+                timeoutId = window.setTimeout(function () {
+                    reject('Unable to get a response in time');
+                }, 3000);
             }
             messageChannel.port1.onmessage = function (event) {
                 var receivedMessage = event.data &&
@@ -488,10 +482,11 @@ var XDomainStorage = /** @class */ (function () {
                     case StorageCommand.key:
                         resolve(receivedMessage.value);
                         break;
+                    case StorageCommand.init:
+                        clearTimeout(timeoutId);
                     case StorageCommand.setItem:
                     case StorageCommand.removeItem:
                     case StorageCommand.clear:
-                    case StorageCommand.init:
                     case StorageCommand.setNamespace:
                         resolve(receivedMessage.status);
                         break;
@@ -500,7 +495,8 @@ var XDomainStorage = /** @class */ (function () {
                         break;
                 }
             };
-            if (_this.storageAvailable || message.command === StorageCommand.init) {
+            if (_this.storageAvailable ||
+                message.command === StorageCommand.init) {
                 log(_this.constructor.name, 'Sending message to ' +
                     _this.xDomainName +
                     ': ' +
@@ -528,7 +524,8 @@ var KvStorage = /** @class */ (function () {
     KvStorage.prototype.setAdapter = function (storageAdapter) {
         var _this = this;
         this.storageAdapter = storageAdapter;
-        log(this.constructor.name, 'addding and initializing adapter: ' + storageAdapter.constructor.name, LogLevel.info);
+        log(this.constructor.name, 'addding and initializing adapter: ' +
+            storageAdapter.constructor.name, LogLevel.info);
         return this.storageAdapter.initialize().then(function (status) {
             var _a;
             if (status !== 'ok') {

@@ -44,12 +44,6 @@ export class XDomainStorage implements IStorageAdapter {
             return Promise.reject('Adapter already initialized')
         }
 
-        if (this.iframe === undefined) {
-            this.storageAvailable = true
-
-            return Promise.resolve('ok')
-        }
-
         if ('complete' === this.iframe?.contentDocument?.readyState) {
             return new Promise(
                 (resolve: (value: string | PromiseLike<string>) => void) => {
@@ -153,11 +147,6 @@ export class XDomainStorage implements IStorageAdapter {
     private sendMessageToIframe(
         message: IStorageMessage
     ): Promise<string | number | void> {
-        let returnedResult: boolean
-        if (message.command === StorageCommand.init) {
-            returnedResult = false
-        }
-
         const messageChannel: MessageChannel = new MessageChannel()
 
         return new Promise(
@@ -169,13 +158,13 @@ export class XDomainStorage implements IStorageAdapter {
                     reject('Messaging not enabled!')
                 }
 
+                let timeoutId: number = 0;
+
                 if (message.command === StorageCommand.init) {
                     //small timeout to see if stuff is enabled
-                    setTimeout(() => {
-                        if (!returnedResult) {
-                            reject('Unable to get a response in time')
-                        }
-                    }, 1000)
+                    timeoutId = window.setTimeout(() => {
+                        reject('Unable to get a response in time')
+                    }, 3000)
                 }
 
                 messageChannel.port1.onmessage = (event: MessageEvent) => {
@@ -210,10 +199,11 @@ export class XDomainStorage implements IStorageAdapter {
                         case StorageCommand.key:
                             resolve(receivedMessage.value)
                             break
+                        case StorageCommand.init:
+                            clearTimeout(timeoutId);
                         case StorageCommand.setItem:
                         case StorageCommand.removeItem:
                         case StorageCommand.clear:
-                        case StorageCommand.init:
                         case StorageCommand.setNamespace:
                             resolve(receivedMessage.status)
                             break
